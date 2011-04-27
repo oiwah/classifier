@@ -1,0 +1,12 @@
+#!/usr/bin/python
+
+def build(bld):
+    bld.shlib(source = ['nb.cpp'],
+              target = 'naivebayes',
+              includes='.')
+
+    bld(features = 'cxx cprogram',
+        source = 'nb_test.cpp',
+        target = 'nb_test',
+        includes = ['.'],
+        use = ['naivebayes'])
