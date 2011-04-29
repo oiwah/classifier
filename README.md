@@ -10,4 +10,4 @@ Algorithm
 TODO
 ----
 
-* Implement Complement Naive Bayes
+* Implement Complementary Naive Bayes
