@@ -48,6 +48,8 @@ int main(int argc, char** argv) {
   }
   
   classifier::naivebayes::NaiveBayes nb;
+  nb.set_alpha(1.2);
+
   std::vector<classifier::naivebayes::datum> train;
   if (!ParseFile(false, argv[1], &train))
     return -1;

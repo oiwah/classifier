@@ -18,6 +18,8 @@ class NaiveBayes {
   NaiveBayes();
   ~NaiveBayes() {};
 
+  void set_alpha(double alpha_);
+  
   void Train(const std::vector<datum>& data);
   void Test(datum& datum);
 
@@ -25,6 +27,10 @@ class NaiveBayes {
   void CountWord(const std::string& category,
                  const std::vector<std::string>& words);
 
+  //smoothing parameter
+  bool smoothing;
+  double alpha;
+  
   size_t document_sum;
   std::map<std::string, size_t> document_count;
   

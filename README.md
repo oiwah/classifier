@@ -4,10 +4,10 @@ Classification Library
 Algorithm
 ---------
 
-* NaiveBayes (multinominal)
+* NaiveBayes (multinominal + smoothing)
 
 
 TODO
 ----
 
-* Implement smoothing parameter for NaiveBayes
+* Implement Complement Naive Bayes
