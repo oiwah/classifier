@@ -34,8 +34,8 @@ void NaiveBayes::Train(const std::vector<datum>& data) {
   }
 }
 
-void NaiveBayes::Test(datum& datum) {
-  datum.category = "None";
+void NaiveBayes::Test(const datum& datum, std::string* result) {
+  *result = "None";
   double score = -1;
 
   for (std::map<std::string, size_t>::iterator it = document_count.begin();
@@ -68,7 +68,7 @@ void NaiveBayes::Test(datum& datum) {
     }
 
     if (score < probability) {
-      datum.category = it->first;
+      *result = it->first;
       score = probability;
     }
   }

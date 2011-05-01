@@ -21,7 +21,7 @@ class NaiveBayes {
   void set_alpha(double alpha_);
   
   void Train(const std::vector<datum>& data);
-  void Test(datum& datum);
+  void Test(const datum& datum, std::string* result);
 
  private:
   void CountWord(const std::string& category,

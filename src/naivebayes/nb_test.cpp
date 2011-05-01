@@ -20,7 +20,7 @@ bool ParseFile(bool test,
     classifier::naivebayes::datum datum;
     std::istringstream iss(line);
 
-    std::string category = "Non defined";
+    std::string category = "Not defined";
     if (!test && !(iss >> category)) {
       std::cerr << "parse error: you must set category in line " << lineN << std::endl;
       return false;
@@ -58,9 +58,11 @@ int main(int argc, char** argv) {
   std::vector<classifier::naivebayes::datum> test;
   if (!ParseFile(true, argv[2], &test))
     return -1;
+
   for (size_t i = 0; i < test.size(); ++i) {
-    nb.Test(test[i]);
-    std::cout << i << "th data : " << test[i].category << std::endl;
+    std::string result;
+    nb.Test(test[i], &result);
+    std::cout << i << "th data : " << result << std::endl;
   }
   
   return 0;
