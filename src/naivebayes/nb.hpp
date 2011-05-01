@@ -18,24 +18,26 @@ class NaiveBayes {
   NaiveBayes();
   ~NaiveBayes() {};
 
-  void set_alpha(double alpha_);
+  void set_alpha(double alpha);
   
   void Train(const std::vector<datum>& data);
-  void Test(const datum& datum, std::string* result);
+  void Test(const datum& datum, std::string* result) const;
+  void CompareFeatureWeight(const std::string& feature,
+                            std::vector<std::pair<std::string, double> >* results) const;
 
  private:
   void CountWord(const std::string& category,
                  const std::vector<std::string>& words);
 
   //smoothing parameter
-  bool smoothing;
-  double alpha;
+  bool smoothing_;
+  double alpha_;
   
-  size_t document_sum;
-  std::map<std::string, size_t> document_count;
+  size_t document_sum_;
+  std::map<std::string, size_t> document_count_;
   
-  std::map<std::string, size_t> category_word_sum;
-  std::map<std::string, std::map<std::string, size_t> > word_count;
+  std::map<std::string, size_t> word_sum_in_each_category_;
+  std::map<std::string, std::map<std::string, size_t> > word_count_in_each_category_;
 };
 
 } //namespace

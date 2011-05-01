@@ -6,7 +6,7 @@ def build(bld):
               includes='.')
 
     bld(features = 'cxx cprogram',
-        source = 'nb_test.cpp',
+        source = ['nb_test.cpp'],
         target = 'nb_test',
         includes = ['.'],
         use = ['naivebayes'])

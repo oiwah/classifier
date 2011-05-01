@@ -40,6 +40,21 @@ bool ParseFile(bool test,
   return true;
 }
 
+void PrintFeatureScores(const classifier::naivebayes::NaiveBayes& nb,
+                        const std::vector<classifier::naivebayes::datum>& train) {
+  for (size_t i = 0; i < 5; ++i) {
+    for (size_t j = 0; j < 3; ++j) {
+      std::vector<std::pair<std::string, double> > results(0);
+      nb.CompareFeatureWeight(train[i].words[j], &results);
+      std::cout << train[i].words[j] << std::endl;
+      for (std::vector<std::pair<std::string, double> >::const_iterator it = results.begin();
+           it != results.end();
+           ++it) {
+        std::cout << it->first << "\t" << it->second << std::endl;
+      }
+    }
+  }
+}
 } //namespace
 
 int main(int argc, char** argv) {
@@ -54,6 +69,8 @@ int main(int argc, char** argv) {
   if (!ParseFile(false, argv[1], &train))
     return -1;
   nb.Train(train);
+
+  PrintFeatureScores(nb, train);
   
   std::vector<classifier::naivebayes::datum> test;
   if (!ParseFile(true, argv[2], &test))
