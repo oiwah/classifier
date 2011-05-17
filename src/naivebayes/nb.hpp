@@ -6,12 +6,10 @@
 #include <set>
 #include <map>
 
+#include <tool/feature.h>
+
 namespace classifier {
 namespace naivebayes {
-struct datum {
-  std::string category;
-  std::vector<std::string> words;
-};
 
 class NaiveBayes {
  public:

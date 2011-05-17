@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 APPNAME = 'classifier'
-VERSION = '0.0.1'
+VERSION = '0.1.0'
 
 top = '.'
 out = 'build'
@@ -15,4 +15,6 @@ def configure(conf):
     conf.env.HPREFIX=conf.env.PREFIX+'/include/classifier'
 
 def build(bld):
+    bld.SRCPATH=bld.path.abspath()+'/src'
     bld.recurse('src')
+

@@ -3,10 +3,10 @@
 def build(bld):
     bld.shlib(source = ['nb.cpp'],
               target = 'naivebayes',
-              includes='.')
+              includes=bld.SRCPATH)
 
     bld(features = 'cxx cprogram',
         source = ['nb_test.cpp'],
         target = 'nb_test',
-        includes = ['.'],
+        includes = bld.SRCPATH,
         use = ['naivebayes'])

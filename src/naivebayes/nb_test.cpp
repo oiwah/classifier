@@ -1,4 +1,4 @@
-#include "nb.hpp"
+#include <naivebayes/nb.hpp>
 
 #include <fstream>
 #include <sstream>
@@ -6,8 +6,8 @@
 namespace {
 bool ParseFile(bool test,
                const char* file_path,
-               std::vector<classifier::naivebayes::datum>* data) {
-  std::vector<classifier::naivebayes::datum>(0).swap(*data);
+               std::vector<classifier::datum>* data) {
+  std::vector<classifier::datum>(0).swap(*data);
   
   std::ifstream ifs(file_path);
   if (!ifs) {
@@ -17,7 +17,7 @@ bool ParseFile(bool test,
 
   size_t lineN = 0;
   for (std::string line; getline(ifs, line); ++lineN) {
-    classifier::naivebayes::datum datum;
+    classifier::datum datum;
     std::istringstream iss(line);
 
     std::string category = "Not defined";
@@ -41,8 +41,8 @@ bool ParseFile(bool test,
 }
 
 void PrintFeatureScores(const classifier::naivebayes::NaiveBayes& nb,
-                        const std::vector<classifier::naivebayes::datum>& train) {
-  for (size_t i = 0; i < 5; ++i) {
+                        const std::vector<classifier::datum>& train) {
+  for (size_t i = 0; i < 2; ++i) {
     for (size_t j = 0; j < 3; ++j) {
       std::vector<std::pair<std::string, double> > results(0);
       nb.CompareFeatureWeight(train[i].words[j], &results);
@@ -60,19 +60,20 @@ void PrintFeatureScores(const classifier::naivebayes::NaiveBayes& nb,
 int main(int argc, char** argv) {
   if (argc != 3) {
     std::cerr << "usage: ./a.out [training file] [test file]" << std::endl;
+    return -1;
   }
   
   classifier::naivebayes::NaiveBayes nb;
   nb.set_alpha(1.2);
 
-  std::vector<classifier::naivebayes::datum> train;
+  std::vector<classifier::datum> train;
   if (!ParseFile(false, argv[1], &train))
     return -1;
   nb.Train(train);
 
   PrintFeatureScores(nb, train);
   
-  std::vector<classifier::naivebayes::datum> test;
+  std::vector<classifier::datum> test;
   if (!ParseFile(true, argv[2], &test))
     return -1;
 
