@@ -1,4 +1,4 @@
-#include <naivebayes/nb.hpp>
+#include <naivebayes/nb.h>
 
 #include <fstream>
 #include <sstream>

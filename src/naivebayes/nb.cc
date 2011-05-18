@@ -1,4 +1,7 @@
-#include "nb.hpp"
+#include <naivebayes/nb.h>
+
+#include <cmath>
+#include <cfloat>
 
 namespace classifier {
 namespace naivebayes {
@@ -37,48 +40,14 @@ void NaiveBayes::Train(const std::vector<datum>& data) {
 
 void NaiveBayes::Test(const datum& datum, std::string* result) const {
   *result = "None";
-  double score = -1;
+  double score = -DBL_MAX;
 
   for (std::map<std::string, std::map<std::string, size_t> >::const_iterator it =
            word_count_in_each_category_.begin();
        it != word_count_in_each_category_.end();
        ++it) {
     std::string category = it->first;
-
-    double probability = 1.0;
-    double smoothing_parameter = 0.0;
-    if (smoothing_)
-      smoothing_parameter = alpha_ - 1.0;
-
-    // Class Probability
-    probability *= (document_count_.at(category) + smoothing_parameter)
-        / ((double)document_sum_ + document_count_.size() * smoothing_parameter);
-
-    // Word Probability
-    for (size_t i = 0; i < datum.words.size(); ++i) {
-      std::string word = datum.words[i];
-      if (it->second.find(word)
-          == it->second.end()) {
-        if (!smoothing_) {
-          probability = -1;
-          break;
-        }
-
-        // Approximate the number of word distribution
-        probability *= smoothing_parameter /
-            ((double)word_sum_in_each_category_.at(category)
-             + (datum.words.size() * smoothing_parameter));
-      } else {
-        probability *= (it->second.at(word) + smoothing_parameter)
-            / ((double)word_sum_in_each_category_.at(category)
-               + (datum.words.size() * smoothing_parameter));
-      }
-
-      probability *= word_sum_in_each_category_.at(category);
-    }
-
-    std::cout << category << std::endl;
-    std::cout << probability << std::endl;
+    double probability = CalculateProbability(datum, category);
 
     if (score < probability) {
       *result = category;
@@ -116,6 +85,46 @@ void NaiveBayes::CountWord(const std::string& category,
     }
     ++word_sum_in_each_category_[category];
   }
+}
+
+double NaiveBayes::CalculateProbability(const datum& datum,
+                                        const std::string& category) const {
+  double probability = 0.0;
+  double smoothing_parameter = 0.0;
+  if (smoothing_)
+    smoothing_parameter = alpha_ - 1.0;
+
+  // Class Probability
+  probability += log(
+      (document_count_.at(category) + smoothing_parameter) /
+      ((double)document_sum_ + document_count_.size() * smoothing_parameter) );
+
+  // Word Probability
+  for (size_t i = 0; i < datum.words.size(); ++i) {
+    std::string word = datum.words[i];
+    const std::map<std::string, size_t> &word_count_in_a_category
+        = word_count_in_each_category_.at(category);
+    if (word_count_in_a_category.find(word) == word_count_in_a_category.end()) {
+      if (!smoothing_) {
+        probability = -DBL_MAX;
+        break;
+      }
+
+      // Approximate the number of word distribution
+      probability += log(
+          smoothing_parameter /
+          ((double)word_sum_in_each_category_.at(category)
+           + (datum.words.size() * smoothing_parameter)) );
+    } else {
+      probability += log(
+          (word_count_in_a_category.at(word) + smoothing_parameter)
+          / ((double)word_sum_in_each_category_.at(category)
+             + (datum.words.size() * smoothing_parameter)) );
+    }
+  }
+
+  std::cout << category << " : " << probability << std::endl;
+  return probability;
 }
 
 } //namespace

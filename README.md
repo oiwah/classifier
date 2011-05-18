@@ -5,9 +5,8 @@ Algorithm
 ---------
 
 * NaiveBayes (multinominal + smoothing)
-
+* Complement NaiveBayes
 
 TODO
 ----
 
-* Implement Complementary Naive Bayes
