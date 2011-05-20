@@ -10,3 +10,4 @@ Algorithm
 TODO
 ----
 
+* LogLinear (SGD)

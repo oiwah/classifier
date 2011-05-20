@@ -110,7 +110,7 @@ double NaiveBayes::CalculateProbability(const datum& datum,
         break;
       }
 
-      // Approximate the number of word distribution
+      // Approximate the number of word summation
       probability += log(
           smoothing_parameter /
           ((double)word_sum_in_each_category_.at(category)

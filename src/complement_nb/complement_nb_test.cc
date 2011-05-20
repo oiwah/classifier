@@ -4,8 +4,7 @@
 #include <sstream>
 
 namespace {
-bool ParseFile(bool test,
-               const char* file_path,
+bool ParseFile(const char* file_path,
                std::vector<classifier::datum>* data) {
   std::vector<classifier::datum>(0).swap(*data);
   
@@ -21,7 +20,7 @@ bool ParseFile(bool test,
     std::istringstream iss(line);
 
     std::string category = "Not defined";
-    if (!test && !(iss >> category)) {
+    if (!(iss >> category)) {
       std::cerr << "parse error: you must set category in line " << lineN << std::endl;
       return false;
     }
@@ -32,8 +31,8 @@ bool ParseFile(bool test,
     while (iss >> word) {
       words.push_back(word);
     }
-    datum.words = words;
 
+    datum.words = words;
     data->push_back(datum);
   }
 
@@ -67,21 +66,25 @@ int main(int argc, char** argv) {
   cnb.set_alpha(1.2);
 
   std::vector<classifier::datum> train;
-  if (!ParseFile(false, argv[1], &train))
+  if (!ParseFile(argv[1], &train))
     return -1;
   cnb.Train(train);
 
   PrintFeatureScores(cnb, train);
-  
+
   std::vector<classifier::datum> test;
-  if (!ParseFile(true, argv[2], &test))
+  if (!ParseFile(argv[2], &test))
     return -1;
 
+  size_t score = 0;
   for (size_t i = 0; i < test.size(); ++i) {
     std::string result;
     cnb.Test(test[i], &result);
-    std::cout << i << "th data : " << result << std::endl;
+    if (test[i].category == result)
+      ++score;
+    std::cout << i << "th data : " << test[i].category << "\t" << result << std::endl;
   }
-  
+
+  std::cout << "accuracy : " << score << " / " << test.size() << std::endl;
   return 0;
 }

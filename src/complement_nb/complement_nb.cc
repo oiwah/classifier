@@ -13,13 +13,14 @@ double ComplementNaiveBayes::CalculateProbability(const datum& datum,
     smoothing_parameter = alpha_ - 1.0;
 
   // Class Probability
-  probability += log(
+  probability -= log(
       ((document_sum_ - document_count_.at(category)) + smoothing_parameter) /
       ((double)document_sum_ + document_count_.size() * smoothing_parameter) );
 
   // Calculate Word Sum Except One Category
   size_t word_sum_except_a_category = 0.0;
-  for (std::map<std::string, size_t>::const_iterator it = word_sum_in_each_category_.begin();
+  for (std::map<std::string, size_t>::const_iterator it =
+           word_sum_in_each_category_.begin();
        it != word_sum_in_each_category_.end();
        ++it) {
     if (it->first == category) continue;
@@ -50,22 +51,22 @@ double ComplementNaiveBayes::CalculateProbability(const datum& datum,
         probability = -DBL_MAX;
         break;
       }
-      
-      // Approximate the number of word distribution
-      probability += log(
+
+      // Approximate the number of word summation
+      probability -= log(
           smoothing_parameter /
           ((double)word_sum_except_a_category
            + (datum.words.size() * smoothing_parameter)) );
     } else {
-        probability += log(
+        probability -= log(
             (word_count_except_a_category + smoothing_parameter)
             / ((double)word_sum_except_a_category
                + (datum.words.size() * smoothing_parameter)) );
-      }
+    }
   }
 
   std::cout << category << " : " << probability << std::endl;
-  return -probability;
+  return probability;
 }
 
 } //namespace

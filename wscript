@@ -17,4 +17,3 @@ def configure(conf):
 def build(bld):
     bld.SRCPATH=bld.path.abspath()+'/src'
     bld.recurse('src')
-
