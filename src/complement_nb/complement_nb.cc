@@ -28,17 +28,19 @@ double ComplementNaiveBayes::CalculateProbability(const datum& datum,
   }
 
   // Calculate Word Count Except One Category
-  for (size_t i = 0; i < datum.words.size(); ++i) {
-    std::string word = datum.words[i];
+  for (feature_vector::const_iterator fv_it = datum.fv.begin();
+       fv_it != datum.fv.end();
+       ++fv_it) {
+    std::string word = fv_it->first;
     size_t word_count_except_a_category = 0;
-    for (std::map<std::string, std::map<std::string, size_t> >::const_iterator it =
+    for (std::map<std::string, feature_vector>::const_iterator cate_it =
              word_count_in_each_category_.begin();
-         it != word_count_in_each_category_.end();
-         ++it) {
-      if (it->first == category) continue;
+         cate_it != word_count_in_each_category_.end();
+         ++cate_it) {
+      if (cate_it->first == category) continue;
 
-      const std::map<std::string, size_t> &word_count_in_a_category
-          = word_count_in_each_category_.at(it->first);
+      const feature_vector &word_count_in_a_category
+          = word_count_in_each_category_.at(cate_it->first);
       if (word_count_in_a_category.find(word) == word_count_in_a_category.end())
         continue;
       else
@@ -53,15 +55,15 @@ double ComplementNaiveBayes::CalculateProbability(const datum& datum,
       }
 
       // Approximate the number of word summation
-      probability -= log(
+      probability -= fv_it->second * log(
           smoothing_parameter /
           ((double)word_sum_except_a_category
-           + (datum.words.size() * smoothing_parameter)) );
+           + (datum.fv.size() * smoothing_parameter)) );
     } else {
-        probability -= log(
+        probability -= fv_it->second * log(
             (word_count_except_a_category + smoothing_parameter)
             / ((double)word_sum_except_a_category
-               + (datum.words.size() * smoothing_parameter)) );
+               + (datum.fv.size() * smoothing_parameter)) );
     }
   }
 

@@ -1,4 +1,4 @@
-#include <naivebayes/nb.h>
+#include <perceptron/perceptron.h>
 
 #include <fstream>
 #include <sstream>
@@ -36,16 +36,16 @@ bool ParseFile(const char* file_path,
 
   return true;
 }
-
-void PrintFeatureScores(const classifier::naivebayes::NaiveBayes& nb,
+void PrintFeatureScores(const classifier::perceptron::Perceptron& perc,
                         const std::vector<classifier::datum>& train) {
   for (classifier::feature_vector::const_iterator it = train[0].fv.begin();
        it != train[0].fv.end();
        ++it) {
     const std::string word = it->first;
     std::cout << word << std::endl;
+
     std::vector<std::pair<std::string, double> > results(0);
-    nb.CompareFeatureWeight(word, &results);
+    perc.CompareFeatureWeight(word, &results);
     for (std::vector<std::pair<std::string, double> >::const_iterator it = results.begin();
          it != results.end();
          ++it) {
@@ -57,19 +57,18 @@ void PrintFeatureScores(const classifier::naivebayes::NaiveBayes& nb,
 
 int main(int argc, char** argv) {
   if (argc != 3) {
-    std::cerr << "usage: " << argv[0] << " [training file] [test file]" << std::endl;
+    std::cerr << "usage: " << argv[0] << "  [training file] [test file]" << std::endl;
     return -1;
   }
 
-  classifier::naivebayes::NaiveBayes nb;
-  nb.set_alpha(1.2);
+  classifier::perceptron::Perceptron perc;
 
   std::vector<classifier::datum> train;
   if (!ParseFile(argv[1], &train))
     return -1;
-  nb.Train(train);
+  perc.Train(train);
 
-  PrintFeatureScores(nb, train);
+  PrintFeatureScores(perc, train);
 
   std::vector<classifier::datum> test;
   if (!ParseFile(argv[2], &test))
@@ -78,7 +77,7 @@ int main(int argc, char** argv) {
   size_t score = 0;
   for (size_t i = 0; i < test.size(); ++i) {
     std::string result;
-    nb.Test(test[i], &result);
+    perc.Test(test[i].fv, &result);
     if (test[i].category == result)
       ++score;
     std::cout << i << "th data : " << test[i].category << "\t" << result << std::endl;

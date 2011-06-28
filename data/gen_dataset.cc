@@ -18,7 +18,7 @@ const int kNegative[] = {5, 10, 20, 60};
 const int kNeutral[] = {10, 20, 80, 90};
 
 const int kPersonLevel = 100;
-const int kPersonDistribution[] = {60, 98};
+const int kPersonDistribution[] = {33, 66};
 
 const int kDataSize = 10000;
 const int kEmotionSizePerPerson = 10;

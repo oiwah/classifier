@@ -24,23 +24,22 @@ class NaiveBayes {
                             std::vector<std::pair<std::string, double> >* results) const;
 
  protected:
-  //smoothing parameter
   bool smoothing_;
-  double alpha_;
+  double alpha_; //smoothing parameter
 
   size_t document_sum_;
   std::map<std::string, size_t> document_count_;
 
   std::map<std::string, size_t> word_sum_in_each_category_;
-  std::map<std::string, std::map<std::string, size_t> > word_count_in_each_category_;
+  std::map<std::string, feature_vector> word_count_in_each_category_;
 
  private:
+  void CountCategory(const std::string& category);
   void CountWord(const std::string& category,
-                 const std::vector<std::string>& words);
+                 const feature_vector& fv);
 
   virtual double CalculateProbability(const datum& datum,
                                       const std::string& category) const;
-
 };
 
 } //namespace

@@ -8,7 +8,7 @@ namespace naivebayes {
 NaiveBayes::NaiveBayes() : smoothing_(false), alpha_(0.0), document_sum_(0) {
   std::map<std::string, size_t>().swap(document_count_);
   std::map<std::string, size_t>().swap(word_sum_in_each_category_);
-  std::map<std::string, std::map<std::string, size_t> >().swap(word_count_in_each_category_);
+  std::map<std::string, feature_vector>().swap(word_count_in_each_category_);
 }
 
 void NaiveBayes::set_alpha(double alpha) {
@@ -25,16 +25,8 @@ void NaiveBayes::Train(const std::vector<datum>& data) {
     ++document_sum_;
     std::string category = data[i].category;
     
-    if (document_count_.find(category) == document_count_.end()) {
-      document_count_.insert(make_pair(category, 1));
-      word_sum_in_each_category_.insert(make_pair(category, 0));
-      word_count_in_each_category_.insert(
-          make_pair(category, std::map<std::string, size_t>()));
-    } else {
-      ++document_count_[category];
-    }
-
-    CountWord(category, data[i].words);
+    CountCategory(category);
+    CountWord(category, data[i].fv);
   }
 }
 
@@ -42,7 +34,7 @@ void NaiveBayes::Test(const datum& datum, std::string* result) const {
   *result = "None";
   double score = -DBL_MAX;
 
-  for (std::map<std::string, std::map<std::string, size_t> >::const_iterator it =
+  for (std::map<std::string, feature_vector>::const_iterator it =
            word_count_in_each_category_.begin();
        it != word_count_in_each_category_.end();
        ++it) {
@@ -58,7 +50,7 @@ void NaiveBayes::Test(const datum& datum, std::string* result) const {
 
 void NaiveBayes::CompareFeatureWeight(const std::string& feature,
                                       std::vector<std::pair<std::string, double> >* results) const {
-  for (std::map<std::string, std::map<std::string, size_t> >::const_iterator it =
+  for (std::map<std::string, feature_vector>::const_iterator it =
            word_count_in_each_category_.begin();
        it != word_count_in_each_category_.end();
        ++it) {
@@ -72,18 +64,26 @@ void NaiveBayes::CompareFeatureWeight(const std::string& feature,
   }
 }
 
+void NaiveBayes::CountCategory(const std::string& category) {
+  if (document_count_.find(category) == document_count_.end()) {
+    document_count_[category] = 1;
+    word_sum_in_each_category_[category] = 0;
+    word_count_in_each_category_.insert(make_pair(category, feature_vector()));
+  } else {
+    ++document_count_[category];
+  }
+}
 
 void NaiveBayes::CountWord(const std::string& category,
-                           const std::vector<std::string>& words) {
-  for (size_t i = 0; i < words.size(); ++i) {
-    std::string word = words[i];
-    if (word_count_in_each_category_[category].find(word)
-        == word_count_in_each_category_[category].end()) {
-      word_count_in_each_category_[category].insert(make_pair(word, 1));
-    } else {
-      ++word_count_in_each_category_[category][word];
-    }
-    ++word_sum_in_each_category_[category];
+                           const feature_vector& fv) {
+  for (feature_vector::const_iterator it = fv.begin();
+       it != fv.end();
+       ++it) {
+    std::string word = it->first;
+    double count = it->second;
+
+    word_count_in_each_category_[category][word] += count;
+    word_sum_in_each_category_[category] += count;
   }
 }
 
@@ -100,9 +100,11 @@ double NaiveBayes::CalculateProbability(const datum& datum,
       ((double)document_sum_ + document_count_.size() * smoothing_parameter) );
 
   // Word Probability
-  for (size_t i = 0; i < datum.words.size(); ++i) {
-    std::string word = datum.words[i];
-    const std::map<std::string, size_t> &word_count_in_a_category
+  for (feature_vector::const_iterator it = datum.fv.begin();
+       it != datum.fv.end();
+       ++it) {
+    std::string word = it->first;
+    const feature_vector &word_count_in_a_category
         = word_count_in_each_category_.at(category);
     if (word_count_in_a_category.find(word) == word_count_in_a_category.end()) {
       if (!smoothing_) {
@@ -114,12 +116,14 @@ double NaiveBayes::CalculateProbability(const datum& datum,
       probability += log(
           smoothing_parameter /
           ((double)word_sum_in_each_category_.at(category)
-           + (datum.words.size() * smoothing_parameter)) );
+           + (datum.fv.size() * smoothing_parameter)) )
+           * it->second;
     } else {
       probability += log(
           (word_count_in_a_category.at(word) + smoothing_parameter)
-          / ((double)word_sum_in_each_category_.at(category)
-             + (datum.words.size() * smoothing_parameter)) );
+          / ((double)word_sum_in_each_category_.at(category) * it->second
+             + (datum.fv.size() * smoothing_parameter)) )
+          * it->second;
     }
   }
 

@@ -28,11 +28,9 @@ bool ParseFile(const char* file_path,
 
     std::vector<std::string> words(0);
     std::string word;
-    while (iss >> word) {
-      words.push_back(word);
-    }
+    while (iss >> word)
+      datum.fv[word] += 1.0;
 
-    datum.words = words;
     data->push_back(datum);
   }
 
@@ -41,16 +39,17 @@ bool ParseFile(const char* file_path,
 
 void PrintFeatureScores(const classifier::naivebayes::ComplementNaiveBayes& cnb,
                         const std::vector<classifier::datum>& train) {
-  for (size_t i = 0; i < 2; ++i) {
-    for (size_t j = 0; j < 3; ++j) {
-      std::vector<std::pair<std::string, double> > results(0);
-      cnb.CompareFeatureWeight(train[i].words[j], &results);
-      std::cout << train[i].words[j] << std::endl;
-      for (std::vector<std::pair<std::string, double> >::const_iterator it = results.begin();
-           it != results.end();
-           ++it) {
-        std::cout << it->first << "\t" << it->second << std::endl;
-      }
+  for (classifier::feature_vector::const_iterator it = train[0].fv.begin();
+       it != train[0].fv.end();
+       ++it) {
+    const std::string word = it->first;
+    std::cout << word << std::endl;
+    std::vector<std::pair<std::string, double> > results(0);
+    cnb.CompareFeatureWeight(word, &results);
+    for (std::vector<std::pair<std::string, double> >::const_iterator it = results.begin();
+         it != results.end();
+         ++it) {
+      std::cout << it->first << "\t" << it->second << std::endl;
     }
   }
 }
