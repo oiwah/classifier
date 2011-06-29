@@ -107,20 +107,21 @@ void PA::Update(const std::string& correct,
 
   switch(mode_) {
     case 0:
-      update = hinge_loss / (fv_norm * 2.0);
+      update = hinge_loss / fv_norm;
       break;
 
     case 1:
-      update = std::min(hinge_loss / (fv_norm * 2.0), C_);
+      update = std::min(hinge_loss / fv_norm, C_);
       break;
 
     case 2:
-      update = hinge_loss / (fv_norm + 1 / (2.0 * C_) * 2.0);
+      update = hinge_loss / (fv_norm + 1 / (2.0 * C_));
       break;
 
     default:
       break;
   }
+  update /= 2.0;
 
   if (update > 0.0) {
     for (feature_vector::const_iterator it = fv.begin();
