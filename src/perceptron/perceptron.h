@@ -23,8 +23,8 @@ class Perceptron {
                             std::vector<std::pair<std::string, double> >* results) const;
 
  private:
-  double CalcScore(const feature_vector& fv,
-                   weight_vector weight_vec) const;
+  double InnerProduct(const feature_vector& fv,
+                      weight_vector& wv) const;
 
   void Update(const feature_vector& fv,
               const std::string& correct,

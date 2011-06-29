@@ -29,7 +29,7 @@ void Perceptron::Test(const feature_vector& fv,
        it != weight_.end();
        ++it) {
     weight_vector wv = it->second;
-    double score = CalcScore(fv, wv);
+    double score = InnerProduct(fv, wv);
     score2class.push_back(make_pair(score, it->first));
   }
 
@@ -39,13 +39,13 @@ void Perceptron::Test(const feature_vector& fv,
   *predict = score2class[0].second;
 }
 
-double Perceptron::CalcScore(const feature_vector& fv,
-                             weight_vector weight_vec) const {
+double Perceptron::InnerProduct(const feature_vector& fv,
+                                weight_vector& wv) const {
   double score = 0.0;
   for (feature_vector::const_iterator it = fv.begin();
        it != fv.end();
        ++it)
-    score += weight_vec[it->first] * it->second;
+    score += wv[it->first] * it->second;
 
   return score;
 }
