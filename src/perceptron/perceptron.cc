@@ -16,13 +16,12 @@ void Perceptron::Train(const std::vector<datum>& data,
       std::string predict;
       Test(data[i].fv, &predict);
 
-      if (predict == data[i].category) {
+      if (predict == data[i].category)
         continue;
-      } else if (predict != non_class) {
-        Update(predict, data[i].fv, -1.0);
-      }
 
       Update(data[i].category, data[i].fv);
+      if (predict != non_class)
+        Update(predict, data[i].fv, -1.0);
     }
   }
 }
