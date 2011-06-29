@@ -1,0 +1,12 @@
+#!/usr/bin/python
+
+def build(bld):
+    bld.shlib(source = ['pa.cc'],
+              target = 'pa',
+              includes=bld.SRCPATH)
+
+    bld(features = 'cxx cprogram',
+        source = ['pa_test.cc'],
+        target = 'pa_test',
+        includes = bld.SRCPATH,
+        use = ['pa'])

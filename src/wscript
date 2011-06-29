@@ -4,3 +4,4 @@ def build(bld):
     bld.recurse('naivebayes')
     bld.recurse('complement_nb')
     bld.recurse('perceptron')
+    bld.recurse('passive_aggressive')
