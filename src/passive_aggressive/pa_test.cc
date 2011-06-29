@@ -61,7 +61,8 @@ int main(int argc, char** argv) {
     return -1;
   }
 
-  classifier::pa::PA pa(0);
+  classifier::pa::PA pa(2);
+  pa.SetC(0.001);
   /**
      classifier::pa::PA pa(0);
      pa.SetC(0.001);
