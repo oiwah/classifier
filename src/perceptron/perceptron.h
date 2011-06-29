@@ -26,9 +26,9 @@ class Perceptron {
   double CalcScore(const feature_vector& fv,
                    weight_vector weight_vec) const;
 
-  void Update(const std::string& category,
-              const feature_vector& fv,
-              const double eta = 1.0);
+  void Update(const feature_vector& fv,
+              const std::string& correct,
+              const std::string& predict);
 
   weight_matrix weight_;
 };

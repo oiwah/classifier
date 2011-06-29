@@ -15,13 +15,7 @@ void Perceptron::Train(const std::vector<datum>& data,
     for (size_t i = 0; i < data.size(); ++i) {
       std::string predict;
       Test(data[i].fv, &predict);
-
-      if (predict == data[i].category)
-        continue;
-
-      Update(data[i].category, data[i].fv);
-      if (predict != non_class)
-        Update(predict, data[i].fv, -1.0);
+      Update(data[i].fv, data[i].category, predict);
     }
   }
 }
@@ -56,13 +50,26 @@ double Perceptron::CalcScore(const feature_vector& fv,
   return score;
 }
 
-void Perceptron::Update(const std::string& category,
-                        const feature_vector& fv,
-                        const double eta) {
-  for (feature_vector::const_iterator it = fv.begin();
-       it != fv.end();
-       ++it)
-    weight_[category][it->first] += eta * it->second;
+void Perceptron::Update(const feature_vector& fv,
+                        const std::string& correct,
+                        const std::string& predict) {
+  if (correct == predict)
+    return;
+
+  if (predict != non_class) {
+    for (feature_vector::const_iterator it = fv.begin();
+         it != fv.end();
+         ++it) {
+      weight_[correct][it->first] += it->second;
+      weight_[predict][it->first] -= it->second;
+    }
+  } else {
+    for (feature_vector::const_iterator it = fv.begin();
+         it != fv.end();
+         ++it) {
+      weight_[correct][it->first] += it->second;
+    }
+  }
 }
 
 void Perceptron::CompareFeatureWeight(const std::string& feature,
