@@ -128,7 +128,8 @@ void PA::Update(const std::string& correct,
          it != fv.end();
          ++it) {
       weight_[correct][it->first] += update * it->second;
-      weight_[non_correct_predict][it->first] -= update * it->second;
+      if (non_correct_predict != non_class)
+        weight_[non_correct_predict][it->first] -= update * it->second;
     }
   }
 }

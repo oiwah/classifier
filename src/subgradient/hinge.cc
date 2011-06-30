@@ -70,7 +70,8 @@ void SubgradientHinge::Update(const std::string& correct,
          it != fv.end();
          ++it) {
       weight_[correct][it->first] += step_distance * it->second;
-      weight_[non_correct_predict][it->first] -= step_distance * it->second;
+      if (non_correct_predict != non_class)
+        weight_[non_correct_predict][it->first] -= step_distance * it->second;
     }
   }
 }
