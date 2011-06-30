@@ -8,6 +8,7 @@ Algorithm
 * Complement NaiveBayes
 * Perceptron
 * Passive-Aggressive (PA, PA-I, PA-II)
+* Subgradient Method (Hinge-Loss)
 
 TODO
 ----
