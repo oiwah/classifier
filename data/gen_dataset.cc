@@ -13,9 +13,9 @@ enum EmotionType {
 };
 
 const int kMaxLevel = 100;
-const int kPositive[] = {40, 80, 90, 95};
-const int kNegative[] = {5, 10, 20, 60};
-const int kNeutral[] = {10, 20, 80, 90};
+const int kPositive[] = {40, 80, 90, 95, 100};
+const int kNegative[] = {5, 10, 20, 60, 100};
+const int kNeutral[] = {10, 20, 80, 90, 100};
 
 const int kPersonLevel = 100;
 const int kPersonDistribution[] = {33, 66};
