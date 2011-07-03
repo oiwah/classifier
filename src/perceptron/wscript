@@ -5,8 +5,18 @@ def build(bld):
               target = 'perceptron',
               includes=bld.SRCPATH)
 
+    bld.shlib(source = ['averaged_perceptron.cc'],
+              target = 'averaged_perceptron',
+              includes=bld.SRCPATH)
+
     bld(features = 'cxx cprogram',
         source = ['perc_test.cc'],
         target = 'perc_test',
         includes = bld.SRCPATH,
         use = ['perceptron'])
+
+    bld(features = 'cxx cprogram',
+        source = ['av_perc_test.cc'],
+        target = 'av_perc_test',
+        includes = bld.SRCPATH,
+        use = ['averaged_perceptron'])
