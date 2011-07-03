@@ -10,7 +10,6 @@
 
 namespace classifier {
 namespace naivebayes {
-
 class NaiveBayes {
  public:
   NaiveBayes();

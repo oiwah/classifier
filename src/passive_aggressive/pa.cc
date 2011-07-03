@@ -1,6 +1,5 @@
 #include <passive_aggressive/pa.h>
 
-#include <cfloat>
 #include <algorithm>
 
 namespace classifier {
@@ -35,29 +34,18 @@ void PA::Test(const feature_vector& fv,
 
 void PA::CalcScores(const feature_vector& fv,
                     std::vector<std::pair<double, std::string> >* score2class) const {
-  score2class->push_back(make_pair(-DBL_MAX, non_class));
+  score2class->push_back(make_pair(non_class_score, non_class));
 
   for (weight_matrix::const_iterator it = weight_.begin();
        it != weight_.end();
        ++it) {
     weight_vector wv = it->second;
-    double score = InnerProduct(fv, wv);
+    double score = InnerProduct(fv, &wv);
     score2class->push_back(make_pair(score, it->first));
   }
 
   sort(score2class->begin(), score2class->end(),
        std::greater<std::pair<double, std::string> >());
-}
-
-double PA::InnerProduct(const feature_vector& fv,
-                        weight_vector& wv) const {
-  double score = 0.0;
-  for (feature_vector::const_iterator it = fv.begin();
-       it != fv.end();
-       ++it)
-    score += wv[it->first] * it->second;
-
-  return score;
 }
 
 double PA::CalcHingeLoss(const std::vector<std::pair<double, std::string> >& score2class,
@@ -85,16 +73,6 @@ double PA::CalcHingeLoss(const std::vector<std::pair<double, std::string> >& sco
   }
 
   return score;
-}
-
-double PA::CalcFvNorm(const feature_vector& fv) const {
-  double fv_norm = 0.0;
-  for (feature_vector::const_iterator it = fv.begin();
-       it != fv.end();
-       ++it)
-    fv_norm += it->second * it->second;
-
-  return fv_norm;
 }
 
 void PA::Update(const std::string& correct,

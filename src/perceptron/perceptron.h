@@ -1,15 +1,14 @@
 #ifndef CLASSIFIER_PERCEPTRON_PERCEPTRON_H_
 #define CLASSIFIER_PERCEPTRON_PERCEPTRON_H_
 
-#include <iostream>
 #include <vector>
 #include <map>
+#include <iostream>
 
-#include <tool/feature.h>
+#include <tool/calc.h>
 
 namespace classifier {
 namespace perceptron {
-const std::string non_class = "None";
 
 class Perceptron {
  public:
@@ -23,9 +22,6 @@ class Perceptron {
                             std::vector<std::pair<std::string, double> >* results) const;
 
  private:
-  double InnerProduct(const feature_vector& fv,
-                      weight_vector& wv) const;
-
   void Update(const feature_vector& fv,
               const std::string& correct,
               const std::string& predict);

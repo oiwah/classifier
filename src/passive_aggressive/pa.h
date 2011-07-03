@@ -5,12 +5,10 @@
 #include <vector>
 #include <map>
 
-#include <tool/feature.h>
+#include <tool/calc.h>
 
 namespace classifier {
 namespace pa {
-const std::string non_class = "None";
-
 class PA {
  public:
   explicit PA(size_t mode = 0);
@@ -28,10 +26,6 @@ class PA {
  private:
   void CalcScores(const feature_vector& fv,
                   std::vector<std::pair<double, std::string> >* score2class) const;
-
-  double InnerProduct(const feature_vector& fv,
-                      weight_vector& wv) const;
-  double CalcFvNorm(const feature_vector& fv) const;
 
   double CalcHingeLoss(const std::vector<std::pair<double, std::string> >& score2class,
                        const std::string& correct,

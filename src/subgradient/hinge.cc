@@ -1,6 +1,5 @@
 #include <subgradient/hinge.h>
 
-#include <cfloat>
 #include <cmath>
 #include <algorithm>
 
@@ -32,29 +31,18 @@ void SubgradientHinge::Test(const feature_vector& fv,
 
 void SubgradientHinge::CalcScores(const feature_vector& fv,
                                   std::vector<std::pair<double, std::string> >* score2class) const {
-  score2class->push_back(make_pair(-DBL_MAX, non_class));
+  score2class->push_back(make_pair(non_class_score, non_class));
 
   for (weight_matrix::const_iterator it = weight_.begin();
        it != weight_.end();
        ++it) {
     weight_vector wv = it->second;
-    double score = InnerProduct(fv, wv);
+    double score = InnerProduct(fv, &wv);
     score2class->push_back(make_pair(score, it->first));
   }
 
   sort(score2class->begin(), score2class->end(),
        std::greater<std::pair<double, std::string> >());
-}
-
-double SubgradientHinge::InnerProduct(const feature_vector& fv,
-                                      weight_vector& wv) const {
-  double score = 0.0;
-  for (feature_vector::const_iterator it = fv.begin();
-       it != fv.end();
-       ++it)
-    score += wv[it->first] * it->second;
-
-  return score;
 }
 
 void SubgradientHinge::Update(const std::string& correct,

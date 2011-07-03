@@ -5,12 +5,10 @@
 #include <vector>
 #include <map>
 
-#include <tool/feature.h>
+#include <tool/calc.h>
 
 namespace classifier {
 namespace subgradient {
-const std::string non_class = "None";
-
 class SubgradientHinge {
  public:
   explicit SubgradientHinge(double eta = 1.0);
@@ -25,9 +23,6 @@ class SubgradientHinge {
  private:
   void CalcScores(const feature_vector& fv,
                   std::vector<std::pair<double, std::string> >* score2class) const;
-
-  double InnerProduct(const feature_vector& fv,
-                      weight_vector& wv) const;
 
   void Update(const std::string& correct,
               const std::vector<std::pair<double, std::string> >& score2class,

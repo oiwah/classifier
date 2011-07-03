@@ -36,6 +36,7 @@ bool ParseFile(const char* file_path,
 
   return true;
 }
+
 void PrintFeatureScores(const classifier::cw::CW& cw,
                         const std::vector<classifier::datum>& train) {
   for (classifier::feature_vector::const_iterator it = train[0].fv.begin();
@@ -57,7 +58,7 @@ void PrintFeatureScores(const classifier::cw::CW& cw,
 
 int main(int argc, char** argv) {
   if (argc != 3) {
-    std::cerr << "usage: " << argv[0] << "  [training file] [test file]" << std::endl;
+    std::cerr << "usage: " << argv[0] << " [training file] [test file]" << std::endl;
     return -1;
   }
 

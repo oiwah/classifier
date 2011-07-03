@@ -57,7 +57,7 @@ void PrintFeatureScores(const classifier::subgradient::SubgradientHinge& sh,
 
 int main(int argc, char** argv) {
   if (argc != 3) {
-    std::cerr << "usage: " << argv[0] << "  [training file] [test file]" << std::endl;
+    std::cerr << "usage: " << argv[0] << " [training file] [test file]" << std::endl;
     return -1;
   }
 

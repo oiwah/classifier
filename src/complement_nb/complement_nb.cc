@@ -1,8 +1,6 @@
 #include <complement_nb/complement_nb.h>
 
 #include <cmath>
-#include <cfloat>
-
 namespace classifier {
 namespace naivebayes {
 double ComplementNaiveBayes::CalculateProbability(const datum& datum,
@@ -50,7 +48,7 @@ double ComplementNaiveBayes::CalculateProbability(const datum& datum,
     // Word Probability
     if (word_count_except_a_category == 0) {
       if (!smoothing_) {
-        probability = -DBL_MAX;
+        probability = non_class_score;
         break;
       }
 

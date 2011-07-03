@@ -1,7 +1,6 @@
 #include <naivebayes/nb.h>
 
 #include <cmath>
-#include <cfloat>
 
 namespace classifier {
 namespace naivebayes {
@@ -31,8 +30,8 @@ void NaiveBayes::Train(const std::vector<datum>& data) {
 }
 
 void NaiveBayes::Test(const datum& datum, std::string* result) const {
-  *result = "None";
-  double score = -DBL_MAX;
+  *result = non_class;
+  double score = non_class_score;
 
   for (std::map<std::string, feature_vector>::const_iterator it =
            word_count_in_each_category_.begin();
@@ -108,7 +107,7 @@ double NaiveBayes::CalculateProbability(const datum& datum,
         = word_count_in_each_category_.at(category);
     if (word_count_in_a_category.find(word) == word_count_in_a_category.end()) {
       if (!smoothing_) {
-        probability = -DBL_MAX;
+        probability = non_class_score;
         break;
       }
 
@@ -127,7 +126,7 @@ double NaiveBayes::CalculateProbability(const datum& datum,
     }
   }
 
-  std::cout << category << " : " << probability << std::endl;
+  //std::cout << category << " : " << probability << std::endl;
   return probability;
 }
 

@@ -5,11 +5,10 @@
 #include <vector>
 #include <map>
 
-#include <tool/feature.h>
+#include <tool/calc.h>
 
 namespace classifier {
 namespace cw {
-const std::string non_class = "None";
 typedef std::map<std::string, double> covariance_vector;
 typedef std::map<std::string, covariance_vector> covariance_matrix;
 
@@ -28,10 +27,6 @@ class CW {
  private:
   void CalcScores(const feature_vector& fv,
                   std::vector<std::pair<double, std::string> >* score2class) const;
-
-  double InnerProduct(const feature_vector& fv,
-                      weight_vector& wv) const;
-  double CalcFvNorm(const feature_vector& fv) const;
 
   double CalcM(const std::vector<std::pair<double, std::string> >& score2class,
                const std::string& correct,
