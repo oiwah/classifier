@@ -120,8 +120,7 @@ double NaiveBayes::CalculateProbability(const datum& datum,
     } else {
       probability += log(
           (word_count_in_a_category.at(word) + smoothing_parameter)
-          / ((double)word_sum_in_each_category_.at(category) * it->second
-             + (datum.fv.size() * smoothing_parameter)) )
+          / ((double)word_sum_in_each_category_.at(category) + (datum.fv.size() * smoothing_parameter)) )
           * it->second;
     }
   }
