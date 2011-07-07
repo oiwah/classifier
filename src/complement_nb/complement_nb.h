@@ -11,7 +11,7 @@ class ComplementNaiveBayes : public NaiveBayes {
   ~ComplementNaiveBayes() {};
 
  private:
-  double CalculateProbability(const datum& datum,
+  double CalculateProbability(const feature_vector& fv,
                               const std::string& category) const;
 
 };

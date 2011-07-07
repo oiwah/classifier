@@ -20,8 +20,8 @@ class PA {
              const size_t iteration = 1);
   void Test(const feature_vector& fv,
             std::string* predict) const;
-  void CompareFeatureWeight(const std::string& feature,
-                            std::vector<std::pair<std::string, double> >* results) const;
+  void GetFeatureWeight(const std::string& feature,
+                        std::vector<std::pair<std::string, double> >* results) const;
 
  private:
   void CalcScores(const feature_vector& fv,

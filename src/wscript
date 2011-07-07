@@ -1,9 +1,16 @@
 #!/usr/bin/python
 
 def build(bld):
-    bld.recurse('naivebayes')
-    bld.recurse('complement_nb')
-    bld.recurse('perceptron')
-    bld.recurse('passive_aggressive')
-    bld.recurse('subgradient')
-    bld.recurse('confidence_weighted')
+    bld.shlib(source = ['naivebayes/nb.cc',
+                        'complement_nb/complement_nb.cc',
+                        'perceptron/perceptron.cc',
+                        'perceptron/averaged_perceptron.cc',
+                        'passive_aggressive/pa.cc',
+                        'confidence_weighted/cw.cc',
+                        'subgradient/hinge.cc',
+                        'fobos/fobos.cc',
+                        ],
+              target = 'classifiers',
+              includes=bld.SRCPATH)
+
+    bld.recurse('test')

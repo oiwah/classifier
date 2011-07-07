@@ -10,14 +10,22 @@ AveragedPerceptron::AveragedPerceptron() : dataN_(0) {
   weight_matrix().swap(averaged_weight_);
 }
 
+void AveragedPerceptron::Train(const datum& datum,
+                               const bool calc_averaged) {
+  ++dataN_;
+  std::string predict;
+  Predict(datum.fv, weight_, &predict);
+  Update(datum.fv, datum.category, predict);
+
+  if (calc_averaged)
+    CalcAveragedWeight();
+}
+
 void AveragedPerceptron::Train(const std::vector<datum>& data,
                                const size_t iteration) {
   for (size_t iter = 0; iter < iteration; ++iter) {
     for (size_t i = 0; i < data.size(); ++i) {
-      ++dataN_;
-      std::string predict;
-      Predict(false, data[i].fv, &predict);
-      Update(data[i].fv, data[i].category, predict);
+      Train(data[i], false);
     }
   }
   CalcAveragedWeight();
@@ -25,31 +33,20 @@ void AveragedPerceptron::Train(const std::vector<datum>& data,
 
 void AveragedPerceptron::Test(const feature_vector& fv,
                               std::string* predict) const {
-  Predict(true, fv, predict);
+  Predict(fv, averaged_weight_, predict);
 }
 
-void AveragedPerceptron::Predict(bool averaged,
-                                 const feature_vector& fv,
+void AveragedPerceptron::Predict(const feature_vector& fv,
+                                 const weight_matrix& wm,
                                  std::string* predict) const {
   std::vector<std::pair<double, std::string> > score2class(0);
   score2class.push_back(make_pair(non_class_score, non_class));
-
-  if (averaged) {
-    for (weight_matrix::const_iterator it = averaged_weight_.begin();
-         it != averaged_weight_.end();
-         ++it) {
-      weight_vector wv = it->second;
-      double score = InnerProduct(fv, &wv);
-      score2class.push_back(make_pair(score, it->first));
-    }
-  } else {
-    for (weight_matrix::const_iterator it = weight_.begin();
-         it != weight_.end();
-         ++it) {
-      weight_vector wv = it->second;
-      double score = InnerProduct(fv, &wv);
-      score2class.push_back(make_pair(score, it->first));
-    }
+  for (weight_matrix::const_iterator it = wm.begin();
+       it != wm.end();
+       ++it) {
+    weight_vector wv = it->second;
+    double score = InnerProduct(fv, &wv);
+    score2class.push_back(make_pair(score, it->first));
   }
   sort(score2class.begin(), score2class.end(),
        std::greater<std::pair<double, std::string> >());
@@ -99,19 +96,9 @@ void AveragedPerceptron::CalcAveragedWeight() {
   averaged_weight_.swap(wm);
 }
 
-void AveragedPerceptron::CompareFeatureWeight(const std::string& feature,
-                                              std::vector<std::pair<std::string, double> >* results) const {
-  for (weight_matrix::const_iterator it = weight_.begin();
-       it != weight_.end();
-       ++it) {
-    std::string category = it->first;
-    if (it->second.find(feature) == it->second.end()) {
-      results->push_back(make_pair(category, 0.0));
-    } else {
-      double score = it->second.at(feature);
-      results->push_back(make_pair(category, score));
-    }
-  }
+void AveragedPerceptron::GetFeatureWeight(const std::string& feature,
+                                          std::vector<std::pair<std::string, double> >* results) const {
+  ReturnFeatureWeight(feature, averaged_weight_, results);
 }
 
 } //namespace

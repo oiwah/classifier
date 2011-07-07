@@ -18,10 +18,9 @@ class NaiveBayes {
   void set_alpha(double alpha);
   
   void Train(const std::vector<datum>& data);
-  void Test(const datum& datum, std::string* result) const;
-  void CompareFeatureWeight(const std::string& feature,
-                            std::vector<std::pair<std::string, double> >* results) const;
-
+  void Test(const feature_vector& fv, std::string* result) const;
+  void GetFeatureWeight(const std::string& feature,
+                        std::vector<std::pair<std::string, double> >* results) const;
  protected:
   bool smoothing_;
   double alpha_; //smoothing parameter
@@ -37,7 +36,7 @@ class NaiveBayes {
   void CountWord(const std::string& category,
                  const feature_vector& fv);
 
-  virtual double CalculateProbability(const datum& datum,
+  virtual double CalculateProbability(const feature_vector& fv,
                                       const std::string& category) const;
 };
 

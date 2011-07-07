@@ -112,19 +112,9 @@ void PA::Update(const std::string& correct,
   }
 }
 
-void PA::CompareFeatureWeight(const std::string& feature,
-                              std::vector<std::pair<std::string, double> >* results) const {
-  for (weight_matrix::const_iterator it = weight_.begin();
-       it != weight_.end();
-       ++it) {
-    std::string category = it->first;
-    if (it->second.find(feature) == it->second.end()) {
-      results->push_back(make_pair(category, 0.0));
-    } else {
-      double score = it->second.at(feature);
-      results->push_back(make_pair(category, score));
-    }
-  }
+void PA::GetFeatureWeight(const std::string& feature,
+                          std::vector<std::pair<std::string, double> >* results) const {
+  ReturnFeatureWeight(feature, weight_, results);
 }
 
 } //namespace

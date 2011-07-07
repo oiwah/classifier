@@ -29,7 +29,7 @@ void NaiveBayes::Train(const std::vector<datum>& data) {
   }
 }
 
-void NaiveBayes::Test(const datum& datum, std::string* result) const {
+void NaiveBayes::Test(const feature_vector& fv, std::string* result) const {
   *result = non_class;
   double score = non_class_score;
 
@@ -38,7 +38,7 @@ void NaiveBayes::Test(const datum& datum, std::string* result) const {
        it != word_count_in_each_category_.end();
        ++it) {
     std::string category = it->first;
-    double probability = CalculateProbability(datum, category);
+    double probability = CalculateProbability(fv, category);
 
     if (score < probability) {
       *result = category;
@@ -47,8 +47,8 @@ void NaiveBayes::Test(const datum& datum, std::string* result) const {
   }
 }
 
-void NaiveBayes::CompareFeatureWeight(const std::string& feature,
-                                      std::vector<std::pair<std::string, double> >* results) const {
+void NaiveBayes::GetFeatureWeight(const std::string& feature,
+                                  std::vector<std::pair<std::string, double> >* results) const {
   for (std::map<std::string, feature_vector>::const_iterator it =
            word_count_in_each_category_.begin();
        it != word_count_in_each_category_.end();
@@ -86,7 +86,7 @@ void NaiveBayes::CountWord(const std::string& category,
   }
 }
 
-double NaiveBayes::CalculateProbability(const datum& datum,
+double NaiveBayes::CalculateProbability(const feature_vector& fv,
                                         const std::string& category) const {
   double probability = 0.0;
   double smoothing_parameter = 0.0;
@@ -99,8 +99,8 @@ double NaiveBayes::CalculateProbability(const datum& datum,
       ((double)document_sum_ + document_count_.size() * smoothing_parameter) );
 
   // Word Probability
-  for (feature_vector::const_iterator it = datum.fv.begin();
-       it != datum.fv.end();
+  for (feature_vector::const_iterator it = fv.begin();
+       it != fv.end();
        ++it) {
     std::string word = it->first;
     const feature_vector &word_count_in_a_category
@@ -115,12 +115,12 @@ double NaiveBayes::CalculateProbability(const datum& datum,
       probability += log(
           smoothing_parameter /
           ((double)word_sum_in_each_category_.at(category)
-           + (datum.fv.size() * smoothing_parameter)) )
+           + (fv.size() * smoothing_parameter)) )
            * it->second;
     } else {
       probability += log(
           (word_count_in_a_category.at(word) + smoothing_parameter)
-          / ((double)word_sum_in_each_category_.at(category) + (datum.fv.size() * smoothing_parameter)) )
+          / ((double)word_sum_in_each_category_.at(category) + (fv.size() * smoothing_parameter)) )
           * it->second;
     }
   }

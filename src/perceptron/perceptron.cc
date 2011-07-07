@@ -8,13 +8,17 @@ Perceptron::Perceptron() {
   weight_matrix().swap(weight_);
 }
 
+void Perceptron::Train(const datum& datum) {
+  std::string predict;
+  Test(datum.fv, &predict);
+  Update(datum.fv, datum.category, predict);
+}
+
 void Perceptron::Train(const std::vector<datum>& data,
                        const size_t iteration) {
   for (size_t iter = 0; iter < iteration; ++iter) {
     for (size_t i = 0; i < data.size(); ++i) {
-      std::string predict;
-      Test(data[i].fv, &predict);
-      Update(data[i].fv, data[i].category, predict);
+      Train(data[i]);
     }
   }
 }
@@ -22,20 +26,24 @@ void Perceptron::Train(const std::vector<datum>& data,
 void Perceptron::Test(const feature_vector& fv,
                       std::string* predict) const {
   std::vector<std::pair<double, std::string> > score2class(0);
-  score2class.push_back(make_pair(non_class_score, non_class));
+  CalcScores(fv, &score2class);
+  *predict = score2class[0].second;
+}
+
+void Perceptron::CalcScores(const feature_vector& fv,
+                            std::vector<std::pair<double, std::string> >* score2class) const {
+  score2class->push_back(make_pair(non_class_score, non_class));
 
   for (weight_matrix::const_iterator it = weight_.begin();
        it != weight_.end();
        ++it) {
     weight_vector wv = it->second;
     double score = InnerProduct(fv, &wv);
-    score2class.push_back(make_pair(score, it->first));
+    score2class->push_back(make_pair(score, it->first));
   }
 
-  sort(score2class.begin(), score2class.end(),
+  sort(score2class->begin(), score2class->end(),
        std::greater<std::pair<double, std::string> >());
-
-  *predict = score2class[0].second;
 }
 
 void Perceptron::Update(const feature_vector& fv,
@@ -60,19 +68,9 @@ void Perceptron::Update(const feature_vector& fv,
   }
 }
 
-void Perceptron::CompareFeatureWeight(const std::string& feature,
-                                      std::vector<std::pair<std::string, double> >* results) const {
-  for (weight_matrix::const_iterator it = weight_.begin();
-       it != weight_.end();
-       ++it) {
-    std::string category = it->first;
-    if (it->second.find(feature) == it->second.end()) {
-      results->push_back(make_pair(category, 0.0));
-    } else {
-      double score = it->second.at(feature);
-      results->push_back(make_pair(category, score));
-    }
-  }
+void Perceptron::GetFeatureWeight(const std::string& feature,
+                                  std::vector<std::pair<std::string, double> >* results) const {
+  ReturnFeatureWeight(feature, weight_, results);
 }
 
 } //namespace

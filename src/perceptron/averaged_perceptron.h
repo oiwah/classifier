@@ -14,22 +14,25 @@ class AveragedPerceptron {
   AveragedPerceptron();
   ~AveragedPerceptron() {};
 
+  void Train(const datum& datum,
+             const bool calc_averaged = true);
   void Train(const std::vector<datum>& data,
              const size_t iteration = 1);
   void Test(const feature_vector& fv, std::string* predict) const;
-  void CompareFeatureWeight(const std::string& feature,
-                            std::vector<std::pair<std::string, double> >* results) const;
+  void GetFeatureWeight(const std::string& feature,
+                        std::vector<std::pair<std::string, double> >* results) const;
 
  private:
   void Update(const feature_vector& fv,
               const std::string& correct,
               const std::string& predict);
 
-  void Predict(bool averaged,
-               const feature_vector& fv,
+  void Predict(const feature_vector& fv,
+               const weight_matrix& wm,
                std::string* predict) const;
 
   void CalcAveragedWeight();
+
   weight_matrix weight_;
   weight_matrix differential_weight_;
   weight_matrix averaged_weight_;

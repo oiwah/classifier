@@ -25,7 +25,21 @@ inline double CalcFvNorm(const feature_vector& fv) {
   return fv_norm;
 }
 
-
+inline void ReturnFeatureWeight(const std::string& feature,
+                                const weight_matrix& wm,
+                                std::vector<std::pair<std::string, double> >* results) {
+  for (weight_matrix::const_iterator it = wm.begin();
+       it != wm.end();
+       ++it) {
+    std::string category = it->first;
+    if (it->second.find(feature) == it->second.end()) {
+      results->push_back(make_pair(category, 0.0));
+    } else {
+      double score = it->second.at(feature);
+      results->push_back(make_pair(category, score));
+    }
+  }
+}
 } //namespace
 
 #endif //CLASSIFIER_TOOL_CALC_H_

@@ -3,7 +3,7 @@
 #include <cmath>
 namespace classifier {
 namespace naivebayes {
-double ComplementNaiveBayes::CalculateProbability(const datum& datum,
+double ComplementNaiveBayes::CalculateProbability(const feature_vector& fv,
                                                   const std::string& category) const {
   double probability = 0.0;
   double smoothing_parameter = 0.0;
@@ -26,8 +26,8 @@ double ComplementNaiveBayes::CalculateProbability(const datum& datum,
   }
 
   // Calculate Word Count Except One Category
-  for (feature_vector::const_iterator fv_it = datum.fv.begin();
-       fv_it != datum.fv.end();
+  for (feature_vector::const_iterator fv_it = fv.begin();
+       fv_it != fv.end();
        ++fv_it) {
     std::string word = fv_it->first;
     size_t word_count_except_a_category = 0;
@@ -56,16 +56,16 @@ double ComplementNaiveBayes::CalculateProbability(const datum& datum,
       probability -= fv_it->second * log(
           smoothing_parameter /
           ((double)word_sum_except_a_category
-           + (datum.fv.size() * smoothing_parameter)) );
+           + (fv.size() * smoothing_parameter)) );
     } else {
         probability -= fv_it->second * log(
             (word_count_except_a_category + smoothing_parameter)
             / ((double)word_sum_except_a_category
-               + (datum.fv.size() * smoothing_parameter)) );
+               + (fv.size() * smoothing_parameter)) );
     }
   }
 
-  std::cout << category << " : " << probability << std::endl;
+  //std::cout << category << " : " << probability << std::endl;
   return probability;
 }
 
