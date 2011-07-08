@@ -17,6 +17,7 @@ class CW {
   explicit CW(double phi = 0.0);
   ~CW() {};
 
+  void Train(const datum& datum);
   void Train(const std::vector<datum>& data,
              const size_t iteration = 1);
   void Test(const feature_vector& fv,

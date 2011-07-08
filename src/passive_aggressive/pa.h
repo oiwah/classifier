@@ -16,6 +16,7 @@ class PA {
 
   void SetC(double C);
 
+  void Train(const datum& datum);
   void Train(const std::vector<datum>& data,
              const size_t iteration = 1);
   void Test(const feature_vector& fv,

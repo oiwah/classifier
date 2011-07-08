@@ -10,13 +10,17 @@ CW::CW(double phi) : phi_(phi) {
   covariance_matrix().swap(cov_);
 }
 
+void CW::Train(const datum& datum) {
+  std::vector<std::pair<double, std::string> > score2class(0);
+  CalcScores(datum.fv, &score2class);
+  Update(datum.category, score2class, datum.fv);
+}
+
 void CW::Train(const std::vector<datum>& data,
                const size_t iteration) {
   for (size_t iter = 0; iter < iteration; ++iter) {
     for (size_t i = 0; i < data.size(); ++i) {
-      std::vector<std::pair<double, std::string> > score2class(0);
-      CalcScores(data[i].fv, &score2class);
-      Update(data[i].category, score2class, data[i].fv);
+      Train(data[i]);
     }
   }
 }

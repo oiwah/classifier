@@ -15,6 +15,7 @@ class FOBOS {
         double lambda = 1.0);
   ~FOBOS() {};
 
+  void Train(const datum& datum);
   void Train(const std::vector<datum>& data,
              const size_t iteration = 1);
   void Test(const feature_vector& fv, std::string* predict) const;
@@ -25,6 +26,8 @@ class FOBOS {
   void Truncate(const std::string correct,
                 const std::string non_correct_predict,
                 const feature_vector& fv);
+
+  void TruncateAll();
 
   void CalcScores(const feature_vector& fv,
                   std::vector<std::pair<double, std::string> >* score2class) const;
@@ -38,7 +41,7 @@ class FOBOS {
                        std::string* non_correct_predict) const;
 
   weight_matrix weight_;
-  weight_matrix prev_updateN_;
+  weight_matrix prev_truncate_;
 
   size_t dataN_;
   double eta_;

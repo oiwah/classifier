@@ -7,18 +7,24 @@ namespace classifier {
 namespace fobos {
 FOBOS::FOBOS(double eta, double lambda) : dataN_(0), eta_(eta), lambda_(lambda), truncate_sum_(0.0) {
   weight_matrix().swap(weight_);
-  weight_matrix().swap(prev_updateN_);
+  weight_matrix().swap(prev_truncate_);
+}
+
+void FOBOS::Train(const datum& datum) {
+  std::string non_correct_predict;
+  double hinge_loss = CalcHingeLoss(datum, &non_correct_predict);
+  Update(datum.category, non_correct_predict, hinge_loss, datum.fv);
+  TruncateAll();
 }
 
 void FOBOS::Train(const std::vector<datum>& data,
                   const size_t iteration) {
   for (size_t iter = 0; iter < iteration; ++iter) {
     for (size_t i = 0; i < data.size(); ++i) {
-      std::string non_correct_predict;
-      double hinge_loss = CalcHingeLoss(data[i], &non_correct_predict);
-      Update(data[i].category, non_correct_predict, hinge_loss, data[i].fv);
+      Train(data[i]);
     }
   }
+  TruncateAll();
 }
 
 void FOBOS::Test(const feature_vector& fv,
@@ -34,9 +40,9 @@ void FOBOS::Truncate(const std::string correct,
   for (feature_vector::const_iterator it = fv.begin();
        it != fv.end();
        ++it) {
-    std::map<std::string, double> correct_prev = prev_updateN_[correct];
+    std::map<std::string, double> correct_prev = prev_truncate_[correct];
     if (correct_prev.find(it->first) != correct_prev.end()) {
-      double truncate_value = truncate_sum_ + correct_prev[it->first];
+      double truncate_value = truncate_sum_ - correct_prev[it->first];
       if (weight_[correct][it->first] > 0.0) {
         weight_[correct][it->first]
             = std::max(0.0,
@@ -48,9 +54,9 @@ void FOBOS::Truncate(const std::string correct,
       }
     }
 
-    prev_updateN_[correct][it->first] = truncate_sum_;
+    prev_truncate_[correct][it->first] = truncate_sum_;
 
-    std::map<std::string, double> predict_prev = prev_updateN_[non_correct_predict];
+    std::map<std::string, double> predict_prev = prev_truncate_[non_correct_predict];
     if (predict_prev.find(it->first) != predict_prev.end()) {
       double truncate_value = truncate_sum_ + predict_prev[it->first];
       if (weight_[non_correct_predict][it->first] > 0.0) {
@@ -64,7 +70,29 @@ void FOBOS::Truncate(const std::string correct,
       }
     }
 
-    prev_updateN_[non_correct_predict][it->first] = truncate_sum_;
+    prev_truncate_[non_correct_predict][it->first] = truncate_sum_;
+  }
+}
+
+void FOBOS::TruncateAll() {
+  for (weight_matrix::const_iterator wm_it = weight_.begin();
+       wm_it != weight_.end();
+       ++wm_it) {
+    weight_vector wv = wm_it->second;
+    for (weight_vector::const_iterator wv_it = wv.begin();
+         wv_it != wv.end();
+         ++wv_it) {
+      double prev_truncate = prev_truncate_[wm_it->first][wv_it->first];
+      double truncate_value = truncate_sum_ - prev_truncate;
+      if (wv_it->second > 0.0) {
+        weight_[wm_it->first][wv_it->first]
+            = std::max(0.0, wv_it->second - truncate_value);
+      } else {
+        weight_[wm_it->first][wv_it->first]
+            = std::min(0.0, wv_it->second + truncate_value);
+      }
+      prev_truncate_[wv_it->first][wv_it->first] = truncate_sum_;
+    }
   }
 }
 
