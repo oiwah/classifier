@@ -10,18 +10,19 @@ FOBOS::FOBOS(double eta, double lambda) : dataN_(0), eta_(eta), lambda_(lambda),
   weight_matrix().swap(prev_truncate_);
 }
 
-void FOBOS::Train(const datum& datum) {
+void FOBOS::Train(const datum& datum, bool truncate) {
   std::string non_correct_predict;
   double hinge_loss = CalcHingeLoss(datum, &non_correct_predict);
   Update(datum.category, non_correct_predict, hinge_loss, datum.fv);
-  TruncateAll();
+  if (truncate)
+    TruncateAll();
 }
 
 void FOBOS::Train(const std::vector<datum>& data,
                   const size_t iteration) {
   for (size_t iter = 0; iter < iteration; ++iter) {
     for (size_t i = 0; i < data.size(); ++i) {
-      Train(data[i]);
+      Train(data[i], false);
     }
   }
   TruncateAll();
@@ -53,8 +54,10 @@ void FOBOS::Truncate(const std::string correct,
                        weight_[correct][it->first] + truncate_value);
       }
     }
-
     prev_truncate_[correct][it->first] = truncate_sum_;
+
+    if (non_correct_predict == non_class)
+      continue;
 
     std::map<std::string, double> predict_prev = prev_truncate_[non_correct_predict];
     if (predict_prev.find(it->first) != predict_prev.end()) {
@@ -78,6 +81,9 @@ void FOBOS::TruncateAll() {
   for (weight_matrix::const_iterator wm_it = weight_.begin();
        wm_it != weight_.end();
        ++wm_it) {
+    if (wm_it->first == non_class)
+      continue;
+
     weight_vector wv = wm_it->second;
     for (weight_vector::const_iterator wv_it = wv.begin();
          wv_it != wv.end();

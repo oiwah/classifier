@@ -15,7 +15,7 @@ class FOBOS {
         double lambda = 1.0);
   ~FOBOS() {};
 
-  void Train(const datum& datum);
+  void Train(const datum& datum, bool truncate = true);
   void Train(const std::vector<datum>& data,
              const size_t iteration = 1);
   void Test(const feature_vector& fv, std::string* predict) const;
