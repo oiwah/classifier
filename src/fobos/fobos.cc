@@ -11,9 +11,10 @@ FOBOS::FOBOS(double eta, double lambda) : dataN_(0), eta_(eta), lambda_(lambda),
 }
 
 void FOBOS::Train(const datum& datum, bool truncate) {
-  std::string non_correct_predict;
-  double hinge_loss = CalcHingeLoss(datum, &non_correct_predict);
-  Update(datum.category, non_correct_predict, hinge_loss, datum.fv);
+  ++dataN_;
+  Truncate(datum.fv);
+
+  Update(datum);
   if (truncate)
     TruncateAll();
 }
@@ -35,46 +36,31 @@ void FOBOS::Test(const feature_vector& fv,
   *predict = score2class[0].second;
 }
 
-void FOBOS::Truncate(const std::string correct,
-                     const std::string non_correct_predict,
-                     const feature_vector& fv) {
-  for (feature_vector::const_iterator it = fv.begin();
-       it != fv.end();
-       ++it) {
-    std::map<std::string, double> correct_prev = prev_truncate_[correct];
-    if (correct_prev.find(it->first) != correct_prev.end()) {
-      double truncate_value = truncate_sum_ - correct_prev[it->first];
-      if (weight_[correct][it->first] > 0.0) {
-        weight_[correct][it->first]
-            = std::max(0.0,
-                       weight_[correct][it->first] - truncate_value);
-      } else {
-        weight_[correct][it->first]
-            = std::min(0.0,
-                       weight_[correct][it->first] + truncate_value);
+void FOBOS::Truncate(const feature_vector& fv) {
+  for (feature_vector::const_iterator fv_it = fv.begin();
+       fv_it != fv.end();
+       ++fv_it) {
+    for (weight_matrix::const_iterator wm_it = weight_.begin();
+         wm_it != weight_.end();
+         ++wm_it) {
+      std::map<std::string, double> prev_vector = prev_truncate_[wm_it->first];
+      if (prev_vector.find(fv_it->first) != prev_vector.end()) {
+        double truncate_value = truncate_sum_ - prev_vector[fv_it->first];
+
+        if (weight_[wm_it->first][fv_it->first] > 0.0) {
+          weight_[wm_it->first][fv_it->first]
+              = std::max(0.0,
+                         weight_[wm_it->first][fv_it->first] - truncate_value);
+        } else {
+          weight_[wm_it->first][fv_it->first]
+              = std::min(0.0,
+                         weight_[wm_it->first][fv_it->first] + truncate_value);
+        }
       }
+      prev_truncate_[wm_it->first][fv_it->first] = truncate_sum_;
     }
-    prev_truncate_[correct][it->first] = truncate_sum_;
-
-    if (non_correct_predict == non_class)
-      continue;
-
-    std::map<std::string, double> predict_prev = prev_truncate_[non_correct_predict];
-    if (predict_prev.find(it->first) != predict_prev.end()) {
-      double truncate_value = truncate_sum_ + predict_prev[it->first];
-      if (weight_[non_correct_predict][it->first] > 0.0) {
-        weight_[non_correct_predict][it->first]
-            = std::max(0.0,
-                       weight_[non_correct_predict][it->first] - truncate_value);
-      } else {
-        weight_[non_correct_predict][it->first]
-            = std::min(0.0,
-                       weight_[non_correct_predict][it->first] + truncate_value);
-      }
-    }
-
-    prev_truncate_[non_correct_predict][it->first] = truncate_sum_;
   }
+  truncate_sum_ += lambda_ * eta_ / (std::sqrt(dataN_) * 2.0);
 }
 
 void FOBOS::TruncateAll() {
@@ -102,6 +88,23 @@ void FOBOS::TruncateAll() {
   }
 }
 
+void FOBOS::Update(const datum& datum) {
+  std::string non_correct_predict;
+  double hinge_loss = CalcHingeLoss(datum, &non_correct_predict);
+
+  if (hinge_loss > 0.0) {
+    double step_distance = eta_ / (std::sqrt(dataN_) * 2.0);
+
+    for (feature_vector::const_iterator it = datum.fv.begin();
+         it != datum.fv.end();
+         ++it) {
+      weight_[datum.category][it->first] += step_distance * it->second;
+      if (non_correct_predict != non_class)
+        weight_[non_correct_predict][it->first] -= step_distance * it->second;
+    }
+  }
+}
+
 void FOBOS::CalcScores(const feature_vector& fv,
                        std::vector<std::pair<double, std::string> >* score2class) const {
   score2class->push_back(make_pair(non_class_score, non_class));
@@ -116,27 +119,6 @@ void FOBOS::CalcScores(const feature_vector& fv,
 
   sort(score2class->begin(), score2class->end(),
        std::greater<std::pair<double, std::string> >());
-}
-
-void FOBOS::Update(const std::string& correct,
-                   const std::string& non_correct_predict,
-                   const double hinge_loss,
-                   const feature_vector& fv) {
-  Truncate(correct, non_correct_predict, fv);
-  ++dataN_;
-  truncate_sum_ += lambda_ * eta_ / (std::sqrt(dataN_) * 2.0);
-
-  if (hinge_loss > 0.0) {
-    double step_distance = eta_ / (std::sqrt(dataN_) * 2.0);
-
-    for (feature_vector::const_iterator it = fv.begin();
-         it != fv.end();
-         ++it) {
-      weight_[correct][it->first] += step_distance * it->second;
-      if (non_correct_predict != non_class)
-        weight_[non_correct_predict][it->first] -= step_distance * it->second;
-    }
-  }
 }
 
 double FOBOS::CalcHingeLoss(const datum& datum,

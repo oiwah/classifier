@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
     std::cerr << "error occurring!" << std::endl;
   }
 
-  classifier::fobos::FOBOS fobos(1.0, 0.00001);
+  classifier::fobos::FOBOS fobos(1.0, 0.001);
   if (classifier::Run(fobos, "FOBOS", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
   }

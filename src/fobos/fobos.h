@@ -23,19 +23,14 @@ class FOBOS {
                         std::vector<std::pair<std::string, double> >* results) const;
 
  private:
-  void Truncate(const std::string correct,
-                const std::string non_correct_predict,
-                const feature_vector& fv);
+  void Truncate(const feature_vector& fv);
 
   void TruncateAll();
 
+  void Update(const datum& datum);
+
   void CalcScores(const feature_vector& fv,
                   std::vector<std::pair<double, std::string> >* score2class) const;
-
-  void Update(const std::string& correct,
-              const std::string& non_correct_predict,
-              const double hinge_loss,
-              const feature_vector& fv);
 
   double CalcHingeLoss(const datum& datum,
                        std::string* non_correct_predict) const;
