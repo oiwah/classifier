@@ -10,7 +10,6 @@
 #include <fobos/fobos.h>
 
 #include <test/test.h>
-//#include <test/libsvm_test.h>
 
 namespace {
 } //namespace
@@ -51,6 +50,18 @@ int main(int argc, char** argv) {
 
   classifier::pa::PA pa;
   if (classifier::Run(pa, "PassiveAggressive", train, test) == -1) {
+    std::cerr << "error occurring!" << std::endl;
+  }
+
+  classifier::pa::PA pa_one(1);
+  pa_one.SetC(1.0);
+  if (classifier::Run(pa_one, "PassiveAggressive-I", train, test) == -1) {
+    std::cerr << "error occurring!" << std::endl;
+  }
+
+  classifier::pa::PA pa_two(2);
+  pa_two.SetC(1.0);
+  if (classifier::Run(pa_two, "PassiveAggressive-II", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
   }
 
