@@ -8,6 +8,7 @@
 
 #include <subgradient/hinge.h>
 #include <fobos/fobos.h>
+#include <fobos/cumulative_fobos.h>
 
 #include <test/test.h>
 
@@ -79,6 +80,11 @@ int main(int argc, char** argv) {
   if (classifier::Run(fobos, "FOBOS", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
   }
-  
+
+  classifier::fobos::CumulativeFOBOS cfobos(1.0, 0.0001);
+  if (classifier::Run(cfobos, "CumulativeFOBOS", train, test) == -1) {
+    std::cerr << "error occurring!" << std::endl;
+  }
+
   return 0;
 }

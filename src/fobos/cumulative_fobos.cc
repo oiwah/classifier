@@ -1,16 +1,16 @@
-#include <fobos/fobos.h>
+#include <fobos/cumulative_fobos.h>
 
 #include <cmath>
 #include <algorithm>
 
 namespace classifier {
 namespace fobos {
-FOBOS::FOBOS(double eta, double lambda) : dataN_(0), eta_(eta), lambda_(lambda), truncate_sum_(0.0) {
+CumulativeFOBOS::CumulativeFOBOS(double eta, double lambda) : dataN_(0), eta_(eta), lambda_(lambda), truncate_sum_(0.0) {
   weight_matrix().swap(weight_);
   weight_matrix().swap(prev_truncate_);
 }
 
-void FOBOS::Train(const datum& datum, bool truncate) {
+void CumulativeFOBOS::Train(const datum& datum, bool truncate) {
   ++dataN_;
   Truncate(datum.fv);
 
@@ -19,8 +19,8 @@ void FOBOS::Train(const datum& datum, bool truncate) {
     TruncateAll();
 }
 
-void FOBOS::Train(const std::vector<datum>& data,
-                  const size_t iteration) {
+void CumulativeFOBOS::Train(const std::vector<datum>& data,
+                            const size_t iteration) {
   for (size_t iter = 0; iter < iteration; ++iter) {
     for (size_t i = 0; i < data.size(); ++i) {
       Train(data[i], false);
@@ -29,41 +29,47 @@ void FOBOS::Train(const std::vector<datum>& data,
   TruncateAll();
 }
 
-void FOBOS::Test(const feature_vector& fv,
-                 std::string* predict) const {
+void CumulativeFOBOS::Test(const feature_vector& fv,
+                           std::string* predict) const {
   std::vector<std::pair<double, std::string> > score2class(0);
   CalcScores(fv, &score2class);
   *predict = score2class[0].second;
 }
 
-void FOBOS::Truncate(const feature_vector& fv) {
+void CumulativeFOBOS::Truncate(const feature_vector& fv) {
   for (feature_vector::const_iterator fv_it = fv.begin();
        fv_it != fv.end();
        ++fv_it) {
     for (weight_matrix::const_iterator wm_it = weight_.begin();
          wm_it != weight_.end();
          ++wm_it) {
-      std::map<std::string, double> prev_vector = prev_truncate_[wm_it->first];
-      if (prev_vector.find(fv_it->first) != prev_vector.end()) {
-        double truncate_value = truncate_sum_ - prev_vector[fv_it->first];
+      std::map<std::string, double> prev_truncate_vector
+        = prev_truncate_[wm_it->first];
 
-        if (weight_[wm_it->first][fv_it->first] > 0.0) {
-          weight_[wm_it->first][fv_it->first]
-              = std::max(0.0,
-                         weight_[wm_it->first][fv_it->first] - truncate_value);
-        } else {
-          weight_[wm_it->first][fv_it->first]
-              = std::min(0.0,
-                         weight_[wm_it->first][fv_it->first] + truncate_value);
-        }
+      double prev_truncate_value = 0.0;
+      if (prev_truncate_vector.find(fv_it->first) != prev_truncate_vector.end())
+        prev_truncate_value = prev_truncate_vector[fv_it->first];
+
+      double weight_value = weight_[wm_it->first][fv_it->first];
+      double truncate_value = - prev_truncate_value;
+
+      if (weight_value > 0.0) {
+        truncate_value -= truncate_sum_;
+        if (weight_value + truncate_value < 0.0)
+          truncate_value = - weight_value;
+      } else {
+        truncate_value += truncate_sum_;
+        if (weight_value + truncate_value > 0.0)
+          truncate_value = - weight_value;
       }
-      prev_truncate_[wm_it->first][fv_it->first] = truncate_sum_;
+      weight_[wm_it->first][fv_it->first] += truncate_value;
+      prev_truncate_[wm_it->first][fv_it->first] += truncate_value;
     }
   }
   truncate_sum_ += lambda_ * eta_ / (std::sqrt(dataN_) * 2.0);
 }
 
-void FOBOS::TruncateAll() {
+void CumulativeFOBOS::TruncateAll() {
   for (weight_matrix::const_iterator wm_it = weight_.begin();
        wm_it != weight_.end();
        ++wm_it) {
@@ -71,21 +77,23 @@ void FOBOS::TruncateAll() {
     for (weight_vector::const_iterator wv_it = wv.begin();
          wv_it != wv.end();
          ++wv_it) {
-      double prev_truncate = prev_truncate_[wm_it->first][wv_it->first];
-      double truncate_value = truncate_sum_ - prev_truncate;
+      double truncate_value = prev_truncate_[wm_it->first][wv_it->first];
       if (wv_it->second > 0.0) {
-        weight_[wm_it->first][wv_it->first]
-            = std::max(0.0, wv_it->second - truncate_value);
+        truncate_value -= truncate_sum_;
+        if (wv_it->second + truncate_value < 0.0)
+          truncate_value = - wv_it->second;
       } else {
-        weight_[wm_it->first][wv_it->first]
-            = std::min(0.0, wv_it->second + truncate_value);
+        truncate_value += truncate_sum_;
+        if (wv_it->second + truncate_value > 0.0)
+          truncate_value = - wv_it->second;
       }
-      prev_truncate_[wv_it->first][wv_it->first] = truncate_sum_;
+      weight_[wm_it->first][wv_it->first] += truncate_value;
+      prev_truncate_[wv_it->first][wv_it->first] += truncate_value;
     }
   }
 }
 
-void FOBOS::Update(const datum& datum) {
+void CumulativeFOBOS::Update(const datum& datum) {
   std::string non_correct_predict;
   double hinge_loss = CalcHingeLoss(datum, &non_correct_predict);
 
@@ -102,8 +110,8 @@ void FOBOS::Update(const datum& datum) {
   }
 }
 
-void FOBOS::CalcScores(const feature_vector& fv,
-                       std::vector<std::pair<double, std::string> >* score2class) const {
+void CumulativeFOBOS::CalcScores(const feature_vector& fv,
+                                 std::vector<std::pair<double, std::string> >* score2class) const {
   score2class->push_back(make_pair(non_class_score, non_class));
 
   for (weight_matrix::const_iterator it = weight_.begin();
@@ -118,8 +126,8 @@ void FOBOS::CalcScores(const feature_vector& fv,
        std::greater<std::pair<double, std::string> >());
 }
 
-double FOBOS::CalcHingeLoss(const datum& datum,
-                            std::string* non_correct_predict) const {
+double CumulativeFOBOS::CalcHingeLoss(const datum& datum,
+                                      std::string* non_correct_predict) const {
   std::vector<std::pair<double, std::string> > score2class(0);
   CalcScores(datum.fv, &score2class);
 
@@ -127,7 +135,7 @@ double FOBOS::CalcHingeLoss(const datum& datum,
   bool predict_done = false;
   double score = 1.0;
   for (std::vector<std::pair<double, std::string> >::const_iterator
-           it = score2class.begin();
+         it = score2class.begin();
        it != score2class.end();
        ++it) {
     if (it->second == datum.category) {
@@ -147,8 +155,8 @@ double FOBOS::CalcHingeLoss(const datum& datum,
   return score;
 }
 
-void FOBOS::GetFeatureWeight(const std::string& feature,
-                             std::vector<std::pair<std::string, double> >* results) const {
+void CumulativeFOBOS::GetFeatureWeight(const std::string& feature,
+                                       std::vector<std::pair<std::string, double> >* results) const {
   ReturnFeatureWeight(feature, weight_, results);
 }
 

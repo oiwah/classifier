@@ -9,6 +9,7 @@ def build(bld):
                         'confidence_weighted/cw.cc',
                         'subgradient/hinge.cc',
                         'fobos/fobos.cc',
+                        'fobos/cumulative_fobos.cc',
                         ],
               target = 'classifiers',
               includes=bld.SRCPATH)
