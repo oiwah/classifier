@@ -6,7 +6,7 @@ namespace classifier {
 namespace naivebayes {
 NaiveBayes::NaiveBayes() : smoothing_(false), alpha_(0.0), document_sum_(0) {
   std::map<std::string, size_t>().swap(document_count_);
-  std::map<std::string, size_t>().swap(word_sum_in_each_category_);
+  std::map<std::string, double>().swap(word_sum_in_each_category_);
   std::map<std::string, feature_vector>().swap(word_count_in_each_category_);
 }
 
@@ -57,7 +57,7 @@ void NaiveBayes::GetFeatureWeight(const std::string& feature,
     if (it->second.find(feature) == it->second.end()) {
       results->push_back(make_pair(category, 0.0));
     } else {
-      double score = it->second.at(feature) / (double)word_sum_in_each_category_.at(category);
+      double score = it->second.at(feature) / word_sum_in_each_category_.at(category);
       results->push_back(make_pair(category, score));
     }
   }
@@ -114,13 +114,13 @@ double NaiveBayes::CalculateProbability(const feature_vector& fv,
       // Approximate the number of word summation
       probability += log(
           smoothing_parameter /
-          ((double)word_sum_in_each_category_.at(category)
+          (word_sum_in_each_category_.at(category)
            + (fv.size() * smoothing_parameter)) )
            * it->second;
     } else {
       probability += log(
           (word_count_in_a_category.at(word) + smoothing_parameter)
-          / ((double)word_sum_in_each_category_.at(category) + (fv.size() * smoothing_parameter)) )
+          / (word_sum_in_each_category_.at(category) + (fv.size() * smoothing_parameter)) )
           * it->second;
     }
   }

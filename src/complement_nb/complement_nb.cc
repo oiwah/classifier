@@ -16,8 +16,8 @@ double ComplementNaiveBayes::CalculateProbability(const feature_vector& fv,
       ((double)document_sum_ + document_count_.size() * smoothing_parameter) );
 
   // Calculate Word Sum Except One Category
-  size_t word_sum_except_a_category = 0.0;
-  for (std::map<std::string, size_t>::const_iterator it =
+  double word_sum_except_a_category = 0.0;
+  for (std::map<std::string, double>::const_iterator it =
            word_sum_in_each_category_.begin();
        it != word_sum_in_each_category_.end();
        ++it) {
@@ -30,7 +30,7 @@ double ComplementNaiveBayes::CalculateProbability(const feature_vector& fv,
        fv_it != fv.end();
        ++fv_it) {
     std::string word = fv_it->first;
-    size_t word_count_except_a_category = 0;
+    double word_count_except_a_category = 0.0;
     for (std::map<std::string, feature_vector>::const_iterator cate_it =
              word_count_in_each_category_.begin();
          cate_it != word_count_in_each_category_.end();

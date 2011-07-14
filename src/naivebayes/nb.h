@@ -28,7 +28,7 @@ class NaiveBayes {
   size_t document_sum_;
   std::map<std::string, size_t> document_count_;
 
-  std::map<std::string, size_t> word_sum_in_each_category_;
+  std::map<std::string, double> word_sum_in_each_category_;
   std::map<std::string, feature_vector> word_count_in_each_category_;
 
  private:
