@@ -1,5 +1,12 @@
-Classification Library
-======================
+Classification Library -- An implementation of several online learning algorithms
+=================================================================================
+
+Author : Hidekazu Oiwa <hidekazu.oiwa@gmail.com>
+         The University of Tokyo,
+         Graduate School of Mathematical Informatics,
+
+HomePage : http://www.r.dl.itc.u-tokyo.ac.jp/~oiwa/
+
 
 NaiveBayes
 ----------
@@ -7,8 +14,8 @@ NaiveBayes
 * NaiveBayes (multinominal + smoothing)
 * Complement NaiveBayes
 
-Algorithm
----------
+Online Algorithms
+-----------------
 
 * Perceptron
 * Averaged Perceptron

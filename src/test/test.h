@@ -91,7 +91,8 @@ int Run (T& classifier,
       ++score;
   }
 
-  std::cout << "accuracy : " << score << " / " << test.size() << std::endl << std::endl;
+  std::cout << "accuracy : " << score << " / " << test.size() << std::endl;
+  std::cout << std::endl;
   return 0;
 }
 
