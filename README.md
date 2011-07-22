@@ -1,22 +1,10 @@
 Classification Library -- An implementation of several online learning algorithms
 =================================================================================
 
-Author
-------
-
-**Hidekazu Oiwa** <hidekazu.oiwa@gmail.com>
-
-The University of Tokyo,
-
-Graduate School of Mathematical Informatics,
-
-[HomePage](http://www.r.dl.itc.u-tokyo.ac.jp/~oiwa/)
-
 Enviromental Requirement
 ========================
 
-* gcc version 4.6.0 <
-
+* gcc version *< 4.6.0*
 
 NaiveBayes
 ----------
@@ -43,3 +31,14 @@ TODO
 ----
 
 * LogLinear (SGD)
+
+Author
+------
+
+**Hidekazu Oiwa** <hidekazu.oiwa@gmail.com>
+
+The University of Tokyo,
+
+Graduate School of Mathematical Informatics,
+
+[HomePage](http://www.r.dl.itc.u-tokyo.ac.jp/~oiwa/en/)
