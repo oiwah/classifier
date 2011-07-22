@@ -4,7 +4,7 @@ Classification Library -- An implementation of several online learning algorithm
 Enviromental Requirement
 ========================
 
-* gcc version *< 4.6.0*
+* gcc version *> 4.6.0*
 
 NaiveBayes
 ----------
