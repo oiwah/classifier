@@ -2,7 +2,6 @@
 #define CLASSIFIER_PERCEPTRON_PERCEPTRON_H_
 
 #include <vector>
-#include <map>
 #include <iostream>
 
 #include <tool/calc.h>

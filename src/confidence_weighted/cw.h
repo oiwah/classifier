@@ -3,14 +3,13 @@
 
 #include <iostream>
 #include <vector>
-#include <map>
 
 #include <tool/calc.h>
 
 namespace classifier {
 namespace cw {
-typedef std::map<std::string, double> covariance_vector;
-typedef std::map<std::string, covariance_vector> covariance_matrix;
+typedef std::unordered_map<std::string, double> covariance_vector;
+typedef std::unordered_map<std::string, covariance_vector> covariance_matrix;
 
 class CW {
  public:

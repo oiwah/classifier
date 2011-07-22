@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 APPNAME = 'classifier'
-VERSION = '0.2.0'
+VERSION = '0.3.0'
 
 top = '.'
 out = 'build'
@@ -11,8 +11,8 @@ def options(opt):
 
 def configure(conf):
     conf.check_tool('compiler_cxx')
-    conf.env.append_value('CXXFLAGS', ['-O2', '-W', '-Wall'])
-    conf.env.HPREFIX=conf.env.PREFIX+'/include/classifier'
+    conf.env.append_unique('CXXFLAGS', ['-std=c++0x', '-O2', '-W', '-Wall'])
+    conf.env.HPREFIX=conf.env.PREFIX + '/include/classifier'
 
 def build(bld):
     bld.SRCPATH=bld.path.abspath()+'/src'

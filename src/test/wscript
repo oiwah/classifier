@@ -5,4 +5,5 @@ def build(bld):
         source = ['test.cc'],
         target = 'test',
         includes = bld.SRCPATH,
+        linkflags = ['-O2'],
         use = ['classifiers'])

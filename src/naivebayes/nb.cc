@@ -5,9 +5,9 @@
 namespace classifier {
 namespace naivebayes {
 NaiveBayes::NaiveBayes() : smoothing_(false), alpha_(0.0), document_sum_(0) {
-  std::map<std::string, size_t>().swap(document_count_);
-  std::map<std::string, double>().swap(word_sum_in_each_category_);
-  std::map<std::string, feature_vector>().swap(word_count_in_each_category_);
+  document_vector().swap(document_count_);
+  word_vector().swap(word_sum_in_each_category_);
+  word_matrix().swap(word_count_in_each_category_);
 }
 
 void NaiveBayes::set_alpha(double alpha) {
@@ -33,8 +33,7 @@ void NaiveBayes::Test(const feature_vector& fv, std::string* result) const {
   *result = non_class;
   double score = non_class_score;
 
-  for (std::map<std::string, feature_vector>::const_iterator it =
-           word_count_in_each_category_.begin();
+  for (word_matrix::const_iterator it = word_count_in_each_category_.begin();
        it != word_count_in_each_category_.end();
        ++it) {
     std::string category = it->first;
@@ -49,8 +48,7 @@ void NaiveBayes::Test(const feature_vector& fv, std::string* result) const {
 
 void NaiveBayes::GetFeatureWeight(const std::string& feature,
                                   std::vector<std::pair<std::string, double> >* results) const {
-  for (std::map<std::string, feature_vector>::const_iterator it =
-           word_count_in_each_category_.begin();
+  for (word_matrix::const_iterator it = word_count_in_each_category_.begin();
        it != word_count_in_each_category_.end();
        ++it) {
     std::string category = it->first;

@@ -6,6 +6,12 @@ Author : Hidekazu Oiwa <hidekazu.oiwa@gmail.com>
          Graduate School of Mathematical Informatics,
 
 HomePage : http://www.r.dl.itc.u-tokyo.ac.jp/~oiwa/
+---------------------------------------------------
+
+Enviromental Requirement
+========================
+
+* gcc version 4.6.0 <
 
 
 NaiveBayes

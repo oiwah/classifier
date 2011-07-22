@@ -43,7 +43,7 @@ void FOBOS::Truncate(const feature_vector& fv) {
     for (weight_matrix::const_iterator wm_it = weight_.begin();
          wm_it != weight_.end();
          ++wm_it) {
-      std::map<std::string, double> prev_vector = prev_truncate_[wm_it->first];
+      weight_vector prev_vector = prev_truncate_[wm_it->first];
       if (prev_vector.find(fv_it->first) != prev_vector.end()) {
         double truncate_value = truncate_sum_ - prev_vector[fv_it->first];
 

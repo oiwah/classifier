@@ -4,12 +4,16 @@
 #include <iostream>
 #include <vector>
 #include <set>
-#include <map>
+#include <unordered_map>
 
 #include <tool/feature.h>
 
 namespace classifier {
 namespace naivebayes {
+typedef std::unordered_map<std::string, size_t> document_vector;
+typedef std::unordered_map<std::string, double> word_vector;
+typedef std::unordered_map<std::string, word_vector> word_matrix;
+
 class NaiveBayes {
  public:
   NaiveBayes();
@@ -26,10 +30,10 @@ class NaiveBayes {
   double alpha_; //smoothing parameter
 
   size_t document_sum_;
-  std::map<std::string, size_t> document_count_;
+  document_vector document_count_;
 
-  std::map<std::string, double> word_sum_in_each_category_;
-  std::map<std::string, feature_vector> word_count_in_each_category_;
+  word_vector word_sum_in_each_category_;
+  word_matrix word_count_in_each_category_;
 
  private:
   void CountCategory(const std::string& category);

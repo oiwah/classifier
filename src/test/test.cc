@@ -22,11 +22,11 @@ int main(int argc, char** argv) {
   }
 
   std::vector<classifier::datum> train;
-  if (!ParseFile(argv[1], &train))
+  if (!ParseFile(argv[1], &train, true))
     return -1;
 
   std::vector<classifier::datum> test;
-  if (!ParseFile(argv[2], &test))
+  if (!ParseFile(argv[2], &test, true))
     return -1;
 
   classifier::naivebayes::NaiveBayes nb;

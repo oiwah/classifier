@@ -82,7 +82,7 @@ int Run (T& classifier,
   std::cout << classifier_name << std::endl;
   classifier.Train(train);
 
-  PrintFeatureWeights(classifier, train[0].fv);
+  //PrintFeatureWeights(classifier, train[0].fv);
   size_t score = 0;
   for (size_t i = 0; i < test.size(); ++i) {
     std::string result;
