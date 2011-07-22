@@ -1,14 +1,16 @@
 Classification Library -- An implementation of several online learning algorithms
 =================================================================================
 
-Author : Hidekazu Oiwa <hidekazu.oiwa@gmail.com>
+Author
+------
 
-         The University of Tokyo,
+**Hidekazu Oiwa** <hidekazu.oiwa@gmail.com>
 
-         Graduate School of Mathematical Informatics,
+The University of Tokyo,
+
+Graduate School of Mathematical Informatics,
 
 [HomePage](http://www.r.dl.itc.u-tokyo.ac.jp/~oiwa/)
----------------------------------------------------
 
 Enviromental Requirement
 ========================
