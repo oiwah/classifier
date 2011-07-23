@@ -26,13 +26,12 @@ class CumulativeFOBOS {
 
   void TruncateAll();
 
-  void Update(const datum& datum);
+  void Update(const std::string& correct,
+              const score2class& scores,
+              const feature_vector& fv);
 
   void CalcScores(const feature_vector& fv,
-                  std::vector<std::pair<double, std::string> >* score2class) const;
-
-  double CalcHingeLoss(const datum& datum,
-                       std::string* non_correct_predict) const;
+                  score2class* scores) const;
 
   weight_matrix weight_;
   weight_matrix prev_truncate_;

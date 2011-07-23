@@ -25,24 +25,24 @@ void Perceptron::Train(const std::vector<datum>& data,
 
 void Perceptron::Test(const feature_vector& fv,
                       std::string* predict) const {
-  std::vector<std::pair<double, std::string> > score2class(0);
-  CalcScores(fv, &score2class);
-  *predict = score2class[0].second;
+  score2class scores(0);
+  CalcScores(fv, &scores);
+  *predict = scores[0].second;
 }
 
 void Perceptron::CalcScores(const feature_vector& fv,
-                            std::vector<std::pair<double, std::string> >* score2class) const {
-  score2class->push_back(make_pair(non_class_score, non_class));
+                            score2class* scores) const {
+  scores->push_back(make_pair(non_class_score, non_class));
 
   for (weight_matrix::const_iterator it = weight_.begin();
        it != weight_.end();
        ++it) {
     weight_vector wv = it->second;
     double score = InnerProduct(fv, &wv);
-    score2class->push_back(make_pair(score, it->first));
+    scores->push_back(make_pair(score, it->first));
   }
 
-  sort(score2class->begin(), score2class->end(),
+  sort(scores->begin(), scores->end(),
        std::greater<std::pair<double, std::string> >());
 }
 

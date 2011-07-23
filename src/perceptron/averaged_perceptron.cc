@@ -39,18 +39,18 @@ void AveragedPerceptron::Test(const feature_vector& fv,
 void AveragedPerceptron::Predict(const feature_vector& fv,
                                  const weight_matrix& wm,
                                  std::string* predict) const {
-  std::vector<std::pair<double, std::string> > score2class(0);
-  score2class.push_back(make_pair(non_class_score, non_class));
+  score2class scores(0);
+  scores.push_back(make_pair(non_class_score, non_class));
   for (weight_matrix::const_iterator it = wm.begin();
        it != wm.end();
        ++it) {
     weight_vector wv = it->second;
     double score = InnerProduct(fv, &wv);
-    score2class.push_back(make_pair(score, it->first));
+    scores.push_back(make_pair(score, it->first));
   }
-  sort(score2class.begin(), score2class.end(),
+  sort(scores.begin(), scores.end(),
        std::greater<std::pair<double, std::string> >());
-  *predict = score2class[0].second;
+  *predict = scores[0].second;
 }
 
 void AveragedPerceptron::Update(const feature_vector& fv,

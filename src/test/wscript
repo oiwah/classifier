@@ -3,7 +3,7 @@
 def build(bld):
     bld(features = 'cxx cprogram',
         source = ['test.cc'],
-        target = 'test',
+        target = 'classifier_test',
         includes = bld.SRCPATH,
         linkflags = ['-O2'],
         use = ['classifiers'])

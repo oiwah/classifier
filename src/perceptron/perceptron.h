@@ -22,7 +22,7 @@ class Perceptron {
                         std::vector<std::pair<std::string, double> >* results) const;
  private:
   void CalcScores(const feature_vector& fv,
-                  std::vector<std::pair<double, std::string> >* score2class) const;
+                  score2class* scores) const;
 
   void Update(const feature_vector& fv,
               const std::string& correct,

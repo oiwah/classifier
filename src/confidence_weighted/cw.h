@@ -26,11 +26,7 @@ class CW {
 
  private:
   void CalcScores(const feature_vector& fv,
-                  std::vector<std::pair<double, std::string> >* score2class) const;
-
-  double CalcM(const std::vector<std::pair<double, std::string> >& score2class,
-               const std::string& correct,
-               std::string* non_correct_predict) const;
+                  score2class* scores) const;
 
   double CalcV(const feature_vector& fv,
                const std::string& correct,
@@ -39,7 +35,7 @@ class CW {
   double CalcAlpha(double m, double v) const;
 
   void Update(const std::string& correct,
-              const std::vector<std::pair<double, std::string> >& score2class,
+              const score2class& scores,
               const feature_vector& fv);
 
   weight_matrix weight_;

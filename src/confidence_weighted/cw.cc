@@ -11,9 +11,9 @@ CW::CW(double phi) : phi_(phi) {
 }
 
 void CW::Train(const datum& datum) {
-  std::vector<std::pair<double, std::string> > score2class(0);
-  CalcScores(datum.fv, &score2class);
-  Update(datum.category, score2class, datum.fv);
+  score2class scores(0);
+  CalcScores(datum.fv, &scores);
+  Update(datum.category, scores, datum.fv);
 }
 
 void CW::Train(const std::vector<datum>& data,
@@ -27,52 +27,25 @@ void CW::Train(const std::vector<datum>& data,
 
 void CW::Test(const feature_vector& fv,
               std::string* predict) const {
-  std::vector<std::pair<double, std::string> > score2class(0);
-  CalcScores(fv, &score2class);
-  *predict = score2class[0].second;
+  score2class scores(0);
+  CalcScores(fv, &scores);
+  *predict = scores[0].second;
 }
 
 void CW::CalcScores(const feature_vector& fv,
-                    std::vector<std::pair<double, std::string> >* score2class) const {
-  score2class->push_back(make_pair(non_class_score, non_class));
+                    score2class* scores) const {
+  scores->push_back(make_pair(non_class_score, non_class));
 
   for (weight_matrix::const_iterator it = weight_.begin();
        it != weight_.end();
        ++it) {
     weight_vector wv = it->second;
     double score = InnerProduct(fv, &wv);
-    score2class->push_back(make_pair(score, it->first));
+    scores->push_back(make_pair(score, it->first));
   }
 
-  sort(score2class->begin(), score2class->end(),
+  sort(scores->begin(), scores->end(),
        std::greater<std::pair<double, std::string> >());
-}
-
-double CW::CalcM(const std::vector<std::pair<double, std::string> >& score2class,
-                 const std::string& correct,
-                 std::string* non_correct_predict) const {
-  bool correct_done = false;
-  bool predict_done = false;
-  double score = 0.0;
-  for (std::vector<std::pair<double, std::string> >::const_iterator
-           it = score2class.begin();
-       it != score2class.end();
-       ++it) {
-    if (it->second == correct) {
-      score += it->first;
-      correct_done = true;
-    } else if (!predict_done) {
-      *non_correct_predict = it->second;
-      if (*non_correct_predict != non_class)
-        score -= it->first;
-      predict_done = true;
-    }
-
-    if (correct_done && predict_done)
-      break;
-  }
-
-  return score;
 }
 
 double CW::CalcV(const feature_vector& fv,
@@ -85,6 +58,8 @@ double CW::CalcV(const feature_vector& fv,
     if (cov_[correct].find(it->first) == cov_[correct].end())
       cov_[correct][it->first] = 1.0;
     v += cov_[correct][it->first] * it->second * it->second;
+
+    if (non_correct_predict == non_class) continue;
 
     if (cov_[non_correct_predict].find(it->first) == cov_[non_correct_predict].end())
       cov_[non_correct_predict][it->first] = 1.0;
@@ -104,10 +79,10 @@ double CW::CalcAlpha(double m, double v) const {
 }
 
 void CW::Update(const std::string& correct,
-                const std::vector<std::pair<double, std::string> >& score2class,
+                const score2class& scores,
                 const feature_vector& fv) {
   std::string non_correct_predict;
-  double m = CalcM(score2class, correct, &non_correct_predict);
+  double m = - CalcLossScore(scores, correct, &non_correct_predict);
   double v = CalcV(fv, correct, non_correct_predict);
   double alpha = CalcAlpha(m, v);
 
@@ -119,11 +94,11 @@ void CW::Update(const std::string& correct,
       double tmp = 1 / cov_[correct][it->first] + 2 * alpha * phi_ * it->second * it->second;
       cov_[correct][it->first] = 1 / tmp;
 
-      if (non_correct_predict != non_class) {
-        weight_[non_correct_predict][it->first] -= alpha * cov_[non_correct_predict][it->first] * it->second;
-        double tmp = 1 / cov_[non_correct_predict][it->first] + 2 * alpha * phi_ * it->second * it->second;
-        cov_[non_correct_predict][it->first] = 1 / tmp;
-      }
+      if (non_correct_predict == non_class) continue;
+      
+      weight_[non_correct_predict][it->first] -= alpha * cov_[non_correct_predict][it->first] * it->second;
+      tmp = 1 / cov_[non_correct_predict][it->first] + 2 * alpha * phi_ * it->second * it->second;
+      cov_[non_correct_predict][it->first] = 1 / tmp;
     }
   }
 }

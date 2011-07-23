@@ -14,7 +14,9 @@ void FOBOS::Train(const datum& datum, bool truncate) {
   ++dataN_;
   Truncate(datum.fv);
 
-  Update(datum);
+  score2class scores(0);
+  CalcScores(datum.fv, &scores);
+  Update(datum.category, scores, datum.fv);
   if (truncate)
     TruncateAll();
 }
@@ -31,9 +33,9 @@ void FOBOS::Train(const std::vector<datum>& data,
 
 void FOBOS::Test(const feature_vector& fv,
                  std::string* predict) const {
-  std::vector<std::pair<double, std::string> > score2class(0);
-  CalcScores(fv, &score2class);
-  *predict = score2class[0].second;
+  score2class scores(0);
+  CalcScores(fv, &scores);
+  *predict = scores[0].second;
 }
 
 void FOBOS::Truncate(const feature_vector& fv) {
@@ -85,17 +87,19 @@ void FOBOS::TruncateAll() {
   }
 }
 
-void FOBOS::Update(const datum& datum) {
+void FOBOS::Update(const std::string& correct,
+                   const score2class& scores,
+                   const feature_vector& fv) {
   std::string non_correct_predict;
-  double hinge_loss = CalcHingeLoss(datum, &non_correct_predict);
+  double hinge_loss = CalcLossScore(scores, correct, &non_correct_predict, 1.0);
 
   if (hinge_loss > 0.0) {
     double step_distance = eta_ / (std::sqrt(dataN_) * 2.0);
 
-    for (feature_vector::const_iterator it = datum.fv.begin();
-         it != datum.fv.end();
+    for (feature_vector::const_iterator it = fv.begin();
+         it != fv.end();
          ++it) {
-      weight_[datum.category][it->first] += step_distance * it->second;
+      weight_[correct][it->first] += step_distance * it->second;
       if (non_correct_predict != non_class)
         weight_[non_correct_predict][it->first] -= step_distance * it->second;
     }
@@ -103,48 +107,19 @@ void FOBOS::Update(const datum& datum) {
 }
 
 void FOBOS::CalcScores(const feature_vector& fv,
-                       std::vector<std::pair<double, std::string> >* score2class) const {
-  score2class->push_back(make_pair(non_class_score, non_class));
+                       score2class* scores) const {
+  scores->push_back(make_pair(non_class_score, non_class));
 
   for (weight_matrix::const_iterator it = weight_.begin();
        it != weight_.end();
        ++it) {
     weight_vector wv = it->second;
     double score = InnerProduct(fv, &wv);
-    score2class->push_back(make_pair(score, it->first));
+    scores->push_back(make_pair(score, it->first));
   }
 
-  sort(score2class->begin(), score2class->end(),
+  sort(scores->begin(), scores->end(),
        std::greater<std::pair<double, std::string> >());
-}
-
-double FOBOS::CalcHingeLoss(const datum& datum,
-                            std::string* non_correct_predict) const {
-  std::vector<std::pair<double, std::string> > score2class(0);
-  CalcScores(datum.fv, &score2class);
-
-  bool correct_done = false;
-  bool predict_done = false;
-  double score = 1.0;
-  for (std::vector<std::pair<double, std::string> >::const_iterator
-           it = score2class.begin();
-       it != score2class.end();
-       ++it) {
-    if (it->second == datum.category) {
-      score -= it->first;
-      correct_done = true;
-    } else if (!predict_done) {
-      *non_correct_predict = it->second;
-      if (*non_correct_predict != non_class)
-        score += it->first;
-      predict_done = true;
-    }
-
-    if (correct_done && predict_done)
-      break;
-  }
-
-  return score;
 }
 
 void FOBOS::GetFeatureWeight(const std::string& feature,

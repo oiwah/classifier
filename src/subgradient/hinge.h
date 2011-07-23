@@ -22,15 +22,11 @@ class SubgradientHinge {
 
  private:
   void CalcScores(const feature_vector& fv,
-                  std::vector<std::pair<double, std::string> >* score2class) const;
+                  score2class* scores) const;
 
   void Update(const std::string& correct,
-              const std::vector<std::pair<double, std::string> >& score2class,
+              const score2class& scores,
               const feature_vector& fv);
-
-  double CalcHingeLoss(const std::vector<std::pair<double, std::string> >& score2class,
-                       const std::string& correct,
-                       std::string* non_correct_predict) const;
 
   weight_matrix weight_;
   size_t dataN_;

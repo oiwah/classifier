@@ -14,10 +14,10 @@ void PA::SetC(double C) {
 }
 
 void PA::Train(const datum& datum) {
-  std::vector<std::pair<double, std::string> > score2class(0);
-  CalcScores(datum.fv, &score2class);
+  score2class scores(0);
+  CalcScores(datum.fv, &scores);
   
-  Update(datum.category, score2class, datum.fv);
+  Update(datum.category, scores, datum.fv);
 }
 
 void PA::Train(const std::vector<datum>& data,
@@ -31,59 +31,32 @@ void PA::Train(const std::vector<datum>& data,
 
 void PA::Test(const feature_vector& fv,
               std::string* predict) const {
-  std::vector<std::pair<double, std::string> > score2class(0);
-  CalcScores(fv, &score2class);
-  *predict = score2class[0].second;
+  score2class scores(0);
+  CalcScores(fv, &scores);
+  *predict = scores[0].second;
 }
 
 void PA::CalcScores(const feature_vector& fv,
-                    std::vector<std::pair<double, std::string> >* score2class) const {
-  score2class->push_back(make_pair(non_class_score, non_class));
+                    score2class* scores) const {
+  scores->push_back(make_pair(non_class_score, non_class));
 
   for (weight_matrix::const_iterator it = weight_.begin();
        it != weight_.end();
        ++it) {
     weight_vector wv = it->second;
     double score = InnerProduct(fv, &wv);
-    score2class->push_back(make_pair(score, it->first));
+    scores->push_back(make_pair(score, it->first));
   }
 
-  sort(score2class->begin(), score2class->end(),
+  sort(scores->begin(), scores->end(),
        std::greater<std::pair<double, std::string> >());
 }
 
-double PA::CalcHingeLoss(const std::vector<std::pair<double, std::string> >& score2class,
-                         const std::string& correct,
-                         std::string* non_correct_predict) const {
-  bool correct_done = false;
-  bool predict_done = false;
-  double score = 1.0;
-  for (std::vector<std::pair<double, std::string> >::const_iterator
-           it = score2class.begin();
-       it != score2class.end();
-       ++it) {
-    if (it->second == correct) {
-      score -= it->first;
-      correct_done = true;
-    } else if (!predict_done) {
-      *non_correct_predict = it->second;
-      if (*non_correct_predict != non_class)
-        score += it->first;
-      predict_done = true;
-    }
-
-    if (correct_done && predict_done)
-      break;
-  }
-
-  return score;
-}
-
 void PA::Update(const std::string& correct,
-                const std::vector<std::pair<double, std::string> >& score2class,
+                const score2class& scores,
                 const feature_vector& fv) {
   std::string non_correct_predict;
-  double hinge_loss = CalcHingeLoss(score2class, correct, &non_correct_predict);
+  double hinge_loss = CalcLossScore(scores, correct, &non_correct_predict, 1.0);
   double fv_norm = CalcFvNorm(fv);
   double update = 0.0;
 
