@@ -16,7 +16,7 @@ void FOBOS::Train(const datum& datum, bool truncate) {
 
   score2class scores(0);
   CalcScores(datum.fv, &scores);
-  Update(datum.category, scores, datum.fv);
+  Update(datum, scores);
   if (truncate)
     TruncateAll();
 }
@@ -48,15 +48,16 @@ void FOBOS::Truncate(const feature_vector& fv) {
       weight_vector prev_vector = prev_truncate_[wm_it->first];
       if (prev_vector.find(fv_it->first) != prev_vector.end()) {
         double truncate_value = truncate_sum_ - prev_vector[fv_it->first];
+        double weight_value = weight_[wm_it->first][fv_it->first];
 
-        if (weight_[wm_it->first][fv_it->first] > 0.0) {
+        if (weight_value > 0.0) {
           weight_[wm_it->first][fv_it->first]
               = std::max(0.0,
-                         weight_[wm_it->first][fv_it->first] - truncate_value);
+                         weight_value - truncate_value);
         } else {
           weight_[wm_it->first][fv_it->first]
               = std::min(0.0,
-                         weight_[wm_it->first][fv_it->first] + truncate_value);
+                         weight_value + truncate_value);
         }
       }
       prev_truncate_[wm_it->first][fv_it->first] = truncate_sum_;
@@ -87,19 +88,18 @@ void FOBOS::TruncateAll() {
   }
 }
 
-void FOBOS::Update(const std::string& correct,
-                   const score2class& scores,
-                   const feature_vector& fv) {
+void FOBOS::Update(const datum& datum,
+                   const score2class& scores) {
   std::string non_correct_predict;
-  double hinge_loss = CalcLossScore(scores, correct, &non_correct_predict, 1.0);
+  double hinge_loss = CalcLossScore(scores, datum.category, &non_correct_predict, 1.0);
 
   if (hinge_loss > 0.0) {
     double step_distance = eta_ / (std::sqrt(dataN_) * 2.0);
 
-    for (feature_vector::const_iterator it = fv.begin();
-         it != fv.end();
+    for (feature_vector::const_iterator it = datum.fv.begin();
+         it != datum.fv.end();
          ++it) {
-      weight_[correct][it->first] += step_distance * it->second;
+      weight_[datum.category][it->first] += step_distance * it->second;
       if (non_correct_predict != non_class)
         weight_[non_correct_predict][it->first] -= step_distance * it->second;
     }

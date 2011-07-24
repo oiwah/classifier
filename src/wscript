@@ -15,6 +15,7 @@ def build(bld):
                         'subgradient/hinge.cc',
                         'fobos/fobos.cc',
                         'fobos/cumulative_fobos.cc',
+                        'dual_averaging/da.cc',
                         ],
               target = 'classifiers',
               includes=bld.SRCPATH)

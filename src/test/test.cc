@@ -9,6 +9,7 @@
 #include <subgradient/hinge.h>
 #include <fobos/fobos.h>
 #include <fobos/cumulative_fobos.h>
+#include <dual_averaging/da.h>
 
 #include <test/test.h>
 
@@ -29,6 +30,7 @@ int main(int argc, char** argv) {
   if (!ParseFile(argv[2], &test, true))
     return -1;
 
+  /**
   classifier::naivebayes::NaiveBayes nb;
   if (classifier::Run(nb, "NaiveBayes", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
@@ -83,6 +85,12 @@ int main(int argc, char** argv) {
 
   classifier::fobos::CumulativeFOBOS cfobos(1.0, 0.0001);
   if (classifier::Run(cfobos, "CumulativeFOBOS", train, test) == -1) {
+    std::cerr << "error occurring!" << std::endl;
+  }
+  */
+
+  classifier::dual_averaging::DualAveraging da(0.001);
+  if (classifier::Run(da, "DualAveraging", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
   }
 

@@ -26,6 +26,7 @@ Optimization
 * Subgradient Method (Hinge-Loss)
 * Forward Backward Splitting (Hinge-Loss + L1-regularization)
 * FOBOS with Cumulative Penalty (Hinge-Loss + L1-regularization)
+* Primal-Dual Averaging (Hinge-Loss + L2-regularization[proximal])
 
 TODO
 ----
