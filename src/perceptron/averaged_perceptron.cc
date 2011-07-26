@@ -14,8 +14,8 @@ void AveragedPerceptron::Train(const datum& datum,
                                const bool calc_averaged) {
   ++dataN_;
   std::string predict;
-  Predict(datum.fv, weight_, &predict);
-  Update(datum.fv, datum.category, predict);
+  Predict(datum.fv, &predict);
+  Update(datum, predict);
 
   if (calc_averaged)
     CalcAveragedWeight();
@@ -33,48 +33,51 @@ void AveragedPerceptron::Train(const std::vector<datum>& data,
 
 void AveragedPerceptron::Test(const feature_vector& fv,
                               std::string* predict) const {
-  Predict(fv, averaged_weight_, predict);
+  Predict(fv, predict, 1);
 }
 
 void AveragedPerceptron::Predict(const feature_vector& fv,
-                                 const weight_matrix& wm,
-                                 std::string* predict) const {
+                                 std::string* predict,
+                                 size_t mode) const {
   score2class scores(0);
   scores.push_back(make_pair(non_class_score, non_class));
-  for (weight_matrix::const_iterator it = wm.begin();
-       it != wm.end();
-       ++it) {
-    weight_vector wv = it->second;
-    double score = InnerProduct(fv, &wv);
-    scores.push_back(make_pair(score, it->first));
+
+  if (mode == 0) {
+    for (weight_matrix::const_iterator it = weight_.begin();
+         it != weight_.end();
+         ++it) {
+      weight_vector wv = it->second;
+      double score = InnerProduct(fv, &wv);
+      scores.push_back(make_pair(score, it->first));
+    }
+  } else if (mode == 1) {
+    for (weight_matrix::const_iterator it = averaged_weight_.begin();
+         it != averaged_weight_.end();
+         ++it) {
+      weight_vector wv = it->second;
+      double score = InnerProduct(fv, &wv);
+      scores.push_back(make_pair(score, it->first));
+    }
   }
+
   sort(scores.begin(), scores.end(),
        std::greater<std::pair<double, std::string> >());
   *predict = scores[0].second;
 }
 
-void AveragedPerceptron::Update(const feature_vector& fv,
-                                const std::string& correct,
+void AveragedPerceptron::Update(const datum& datum,
                                 const std::string& predict) {
-  if (correct == predict)
+  if (datum.category == predict)
     return;
 
-  if (predict != non_class) {
-    for (feature_vector::const_iterator it = fv.begin();
-         it != fv.end();
-         ++it) {
-      weight_[correct][it->first] += it->second;
-      weight_[predict][it->first] -= it->second;
-      differential_weight_[correct][it->first] += dataN_ * it->second;
-      differential_weight_[predict][it->first] -= dataN_ * it->second;
-    }
-  } else {
-    for (feature_vector::const_iterator it = fv.begin();
-         it != fv.end();
-         ++it) {
-      weight_[correct][it->first] += it->second;
-      differential_weight_[correct][it->first] += dataN_ * it->second;
-    }
+  for (feature_vector::const_iterator it = datum.fv.begin();
+       it != datum.fv.end();
+       ++it) {
+    weight_[datum.category][it->first] += it->second;
+    differential_weight_[datum.category][it->first] += dataN_ * it->second;
+    if (predict == non_class) continue;
+    weight_[predict][it->first] -= it->second;
+    differential_weight_[predict][it->first] -= dataN_ * it->second;
   }
 }
 

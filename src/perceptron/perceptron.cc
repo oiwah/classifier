@@ -11,7 +11,7 @@ Perceptron::Perceptron() {
 void Perceptron::Train(const datum& datum) {
   std::string predict;
   Test(datum.fv, &predict);
-  Update(datum.fv, datum.category, predict);
+  Update(datum, predict);
 }
 
 void Perceptron::Train(const std::vector<datum>& data,
@@ -46,25 +46,17 @@ void Perceptron::CalcScores(const feature_vector& fv,
        std::greater<std::pair<double, std::string> >());
 }
 
-void Perceptron::Update(const feature_vector& fv,
-                        const std::string& correct,
+void Perceptron::Update(const datum& datum,
                         const std::string& predict) {
-  if (correct == predict)
+  if (datum.category == predict)
     return;
 
-  if (predict != non_class) {
-    for (feature_vector::const_iterator it = fv.begin();
-         it != fv.end();
-         ++it) {
-      weight_[correct][it->first] += it->second;
-      weight_[predict][it->first] -= it->second;
-    }
-  } else {
-    for (feature_vector::const_iterator it = fv.begin();
-         it != fv.end();
-         ++it) {
-      weight_[correct][it->first] += it->second;
-    }
+  for (feature_vector::const_iterator it = datum.fv.begin();
+       it != datum.fv.end();
+       ++it) {
+    weight_[datum.category][it->first] += it->second;
+    if (predict == non_class) continue;
+    weight_[predict][it->first] -= it->second;
   }
 }
 

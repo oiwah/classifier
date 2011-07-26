@@ -28,15 +28,13 @@ class CW {
   void CalcScores(const feature_vector& fv,
                   score2class* scores) const;
 
-  double CalcV(const feature_vector& fv,
-               const std::string& correct,
+  double CalcV(const datum& datum,
                const std::string& non_correct_predict);
 
   double CalcAlpha(double m, double v) const;
 
-  void Update(const std::string& correct,
-              const score2class& scores,
-              const feature_vector& fv);
+  void Update(const datum& datum,
+              const score2class& scores);
 
   weight_matrix weight_;
   covariance_matrix cov_;

@@ -22,13 +22,12 @@ class AveragedPerceptron {
                         std::vector<std::pair<std::string, double> >* results) const;
 
  private:
-  void Update(const feature_vector& fv,
-              const std::string& correct,
+  void Update(const datum& datum,
               const std::string& predict);
 
   void Predict(const feature_vector& fv,
-               const weight_matrix& wm,
-               std::string* predict) const;
+               std::string* predict,
+               size_t mode = 0) const;
 
   void CalcAveragedWeight();
 
@@ -36,6 +35,7 @@ class AveragedPerceptron {
   weight_matrix differential_weight_;
   weight_matrix averaged_weight_;
   size_t dataN_;
+
 };
 
 } //namespace

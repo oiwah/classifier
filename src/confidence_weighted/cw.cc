@@ -1,6 +1,7 @@
 #include <confidence_weighted/cw.h>
 
 #include <cmath>
+#include <cfloat>
 #include <algorithm>
 
 namespace classifier {
@@ -13,7 +14,7 @@ CW::CW(double phi) : phi_(phi) {
 void CW::Train(const datum& datum) {
   score2class scores(0);
   CalcScores(datum.fv, &scores);
-  Update(datum.category, scores, datum.fv);
+  Update(datum, scores);
 }
 
 void CW::Train(const std::vector<datum>& data,
@@ -48,16 +49,15 @@ void CW::CalcScores(const feature_vector& fv,
        std::greater<std::pair<double, std::string> >());
 }
 
-double CW::CalcV(const feature_vector& fv,
-                 const std::string& correct,
+double CW::CalcV(const datum& datum,
                  const std::string& non_correct_predict) {
   double v = 0.0;
-  for (feature_vector::const_iterator it = fv.begin();
-       it != fv.end();
+  for (feature_vector::const_iterator it = datum.fv.begin();
+       it != datum.fv.end();
        ++it) {
-    if (cov_[correct].find(it->first) == cov_[correct].end())
-      cov_[correct][it->first] = 1.0;
-    v += cov_[correct][it->first] * it->second * it->second;
+    if (cov_[datum.category].find(it->first) == cov_[datum.category].end())
+      cov_[datum.category][it->first] = 1.0;
+    v += cov_[datum.category][it->first] * it->second * it->second;
 
     if (non_correct_predict == non_class) continue;
 
@@ -71,34 +71,38 @@ double CW::CalcV(const feature_vector& fv,
 
 double CW::CalcAlpha(double m, double v) const {
   double gamma = 0.0;
-  double tmp = 1 + 2 * phi_ * m;
-  gamma = - tmp + std::sqrt( tmp * tmp - (8 * phi_ * (m - phi_ * v)) );
-  gamma /= (4 * phi_ * v);
+  double tmp = 1.0 + 2.0 * phi_ * m;
+  gamma = - tmp + std::sqrt( tmp * tmp - (8.0 * phi_ * (m - phi_ * v)) );
+  gamma /= (4.0 * phi_ * v);
 
   return std::max(0.0, gamma);
 }
 
-void CW::Update(const std::string& correct,
-                const score2class& scores,
-                const feature_vector& fv) {
+void CW::Update(const datum& datum,
+                const score2class& scores) {
   std::string non_correct_predict;
-  double m = - CalcLossScore(scores, correct, &non_correct_predict);
-  double v = CalcV(fv, correct, non_correct_predict);
+  double m = - CalcLossScore(scores, datum.category, &non_correct_predict);
+  double v = CalcV(datum, non_correct_predict);
   double alpha = CalcAlpha(m, v);
 
   if (alpha > 0.0) {
-    for (feature_vector::const_iterator it = fv.begin();
-         it != fv.end();
+    for (feature_vector::const_iterator it = datum.fv.begin();
+         it != datum.fv.end();
          ++it) {
-      weight_[correct][it->first] += alpha * cov_[correct][it->first] * it->second;
-      double tmp = 1 / cov_[correct][it->first] + 2 * alpha * phi_ * it->second * it->second;
-      cov_[correct][it->first] = 1 / tmp;
-
+      weight_[datum.category][it->first]
+          += alpha * cov_[datum.category][it->first] * it->second;
+      double tmp = 1.0 / cov_[datum.category][it->first]
+          + 2.0 * alpha * phi_ * it->second * it->second;
+      if (1.0 < tmp && tmp < 10.0E100)
+          cov_[datum.category][it->first] = 1.0 / tmp;
       if (non_correct_predict == non_class) continue;
-      
-      weight_[non_correct_predict][it->first] -= alpha * cov_[non_correct_predict][it->first] * it->second;
-      tmp = 1 / cov_[non_correct_predict][it->first] + 2 * alpha * phi_ * it->second * it->second;
-      cov_[non_correct_predict][it->first] = 1 / tmp;
+
+      weight_[non_correct_predict][it->first]
+          -= alpha * cov_[non_correct_predict][it->first] * it->second;
+      tmp = 1.0 / cov_[non_correct_predict][it->first]
+          + 2.0 * alpha * phi_ * it->second * it->second;
+      if (1.0 < tmp && tmp < 10.0E100)
+          cov_[non_correct_predict][it->first] = 1.0 / tmp;
     }
   }
 }

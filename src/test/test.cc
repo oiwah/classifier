@@ -67,8 +67,9 @@ int main(int argc, char** argv) {
   if (classifier::Run(pa_two, "PassiveAggressive-II", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
   }
+  */
 
-  classifier::cw::CW cw(0.1);
+  classifier::cw::CW cw(0.0001);
   if (classifier::Run(cw, "ConfidenceWeighted", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
   }
@@ -77,7 +78,7 @@ int main(int argc, char** argv) {
   if (classifier::Run(sgh, "SubgradientHinge", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
   }
-
+  /**
   classifier::fobos::FOBOS fobos(1.0, 0.001);
   if (classifier::Run(fobos, "FOBOS", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
@@ -87,12 +88,12 @@ int main(int argc, char** argv) {
   if (classifier::Run(cfobos, "CumulativeFOBOS", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
   }
-  */
 
   classifier::dual_averaging::DualAveraging da(0.001);
   if (classifier::Run(da, "DualAveraging", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
   }
+  */
 
   return 0;
 }
