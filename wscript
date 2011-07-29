@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 APPNAME = 'classifier'
-VERSION = '0.3.0'
+VERSION = '0.4.0'
 
 top = '.'
 out = 'build'
