@@ -61,7 +61,7 @@ bool ParseFile(const char* file_path,
 
 template <class T>
 void PrintFeatureWeights(T& classifier,
-                         const feature_vector fv) {
+                         const feature_vector& fv) {
   for (feature_vector::const_iterator it = fv.begin();
        it != fv.end();
        ++it) {

@@ -20,12 +20,14 @@ void NaiveBayes::set_alpha(double alpha) {
 }
 
 void NaiveBayes::Train(const std::vector<datum>& data) {
-  for (size_t i = 0; i < data.size(); ++i) {
+  for (std::vector<datum>::const_iterator it = data.begin();
+       it != data.end();
+       ++it) {
     ++document_sum_;
-    std::string category = data[i].category;
+    std::string category = it->category;
     
     CountCategory(category);
-    CountWord(category, data[i].fv);
+    CountWord(category, it->fv);
   }
 }
 

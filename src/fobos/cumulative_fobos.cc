@@ -24,8 +24,10 @@ void CumulativeFOBOS::Train(const datum& datum, bool truncate) {
 void CumulativeFOBOS::Train(const std::vector<datum>& data,
                             const size_t iteration) {
   for (size_t iter = 0; iter < iteration; ++iter) {
-    for (size_t i = 0; i < data.size(); ++i) {
-      Train(data[i], false);
+    for (std::vector<datum>::const_iterator it = data.begin();
+         it != data.end();
+         ++it) {
+      Train(*it, false);
     }
   }
   TruncateAll();
@@ -39,15 +41,14 @@ void CumulativeFOBOS::Test(const feature_vector& fv,
 }
 
 void CumulativeFOBOS::Truncate(const feature_vector& fv) {
-  for (feature_vector::const_iterator fv_it = fv.begin();
-       fv_it != fv.end();
-       ++fv_it) {
-    for (weight_matrix::const_iterator wm_it = weight_.begin();
-         wm_it != weight_.end();
-         ++wm_it) {
-      weight_vector &weight_vec = weight_[wm_it->first];
-      weight_vector &truncate_vec = prev_truncate_[wm_it->first];
-
+  for (weight_matrix::const_iterator wm_it = weight_.begin();
+       wm_it != weight_.end();
+       ++wm_it) {
+    weight_vector &weight_vec = weight_[wm_it->first];
+    weight_vector &truncate_vec = prev_truncate_[wm_it->first];
+    for (feature_vector::const_iterator fv_it = fv.begin();
+         fv_it != fv.end();
+         ++fv_it) {
       double prev_truncate_value = 0.0;
       if (fv_it->first < truncate_vec.size()) {
         prev_truncate_value = truncate_vec[fv_it->first];

@@ -25,8 +25,10 @@ void FOBOS::Train(const datum& datum, bool truncate) {
 void FOBOS::Train(const std::vector<datum>& data,
                   const size_t iteration) {
   for (size_t iter = 0; iter < iteration; ++iter) {
-    for (size_t i = 0; i < data.size(); ++i) {
-      Train(data[i], false);
+    for (std::vector<datum>::const_iterator it = data.begin();
+         it != data.end();
+         ++it) {
+      Train(*it, false);
     }
   }
   TruncateAll();
@@ -40,14 +42,14 @@ void FOBOS::Test(const feature_vector& fv,
 }
 
 void FOBOS::Truncate(const feature_vector& fv) {
-  for (feature_vector::const_iterator fv_it = fv.begin();
-       fv_it != fv.end();
-       ++fv_it) {
-    for (weight_matrix::const_iterator wm_it = weight_.begin();
-         wm_it != weight_.end();
-         ++wm_it) {
-      weight_vector &weight_vec = weight_[wm_it->first];
-      weight_vector &truncate_vec = prev_truncate_[wm_it->first];
+  for (weight_matrix::const_iterator wm_it = weight_.begin();
+       wm_it != weight_.end();
+       ++wm_it) {
+    weight_vector &weight_vec = weight_[wm_it->first];
+    weight_vector &truncate_vec = prev_truncate_[wm_it->first];
+    for (feature_vector::const_iterator fv_it = fv.begin();
+         fv_it != fv.end();
+         ++fv_it) {
       if (fv_it->first < truncate_vec.size()) {
         if (truncate_vec[fv_it->first] == 0.0) continue;
         double truncate_value = truncate_sum_ - truncate_vec[fv_it->first];

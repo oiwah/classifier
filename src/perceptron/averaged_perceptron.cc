@@ -24,8 +24,10 @@ void AveragedPerceptron::Train(const datum& datum,
 void AveragedPerceptron::Train(const std::vector<datum>& data,
                                const size_t iteration) {
   for (size_t iter = 0; iter < iteration; ++iter) {
-    for (size_t i = 0; i < data.size(); ++i) {
-      Train(data[i], false);
+    for (std::vector<datum>::const_iterator it = data.begin();
+         it != data.end();
+         ++it) {
+      Train(*it, false);
     }
   }
   CalcAveragedWeight();

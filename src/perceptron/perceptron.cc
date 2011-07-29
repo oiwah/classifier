@@ -17,8 +17,10 @@ void Perceptron::Train(const datum& datum) {
 void Perceptron::Train(const std::vector<datum>& data,
                        const size_t iteration) {
   for (size_t iter = 0; iter < iteration; ++iter) {
-    for (size_t i = 0; i < data.size(); ++i) {
-      Train(data[i]);
+    for (std::vector<datum>::const_iterator it = data.begin();
+         it != data.end();
+         ++it) {
+      Train(*it);
     }
   }
 }
