@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <vector>
-#include <set>
 #include <unordered_map>
 
 #include <tool/feature.h>
@@ -11,8 +10,9 @@
 namespace classifier {
 namespace naivebayes {
 typedef std::unordered_map<std::string, size_t> document_vector;
-typedef std::unordered_map<std::string, double> word_vector;
+typedef std::vector<double> word_vector;
 typedef std::unordered_map<std::string, word_vector> word_matrix;
+typedef std::unordered_map<std::string, double> word_sum_vector;
 
 class NaiveBayes {
  public:
@@ -23,7 +23,7 @@ class NaiveBayes {
   
   void Train(const std::vector<datum>& data);
   void Test(const feature_vector& fv, std::string* result) const;
-  void GetFeatureWeight(const std::string& feature,
+  void GetFeatureWeight(size_t feature_id,
                         std::vector<std::pair<std::string, double> >* results) const;
  protected:
   bool smoothing_;
@@ -32,7 +32,7 @@ class NaiveBayes {
   size_t document_sum_;
   document_vector document_count_;
 
-  word_vector word_sum_in_each_category_;
+  word_sum_vector word_sum_in_each_category_;
   word_matrix word_count_in_each_category_;
 
  private:

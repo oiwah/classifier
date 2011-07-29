@@ -1,10 +1,16 @@
-Classification Library -- An implementation of several online learning algorithms
-=================================================================================
+Classification Library -- Several Online Learning Algorithms
+============================================================
 
 Enviromental Requirement
 ========================
 
 * gcc version *> 4.6.0*
+
+About
+=====
+
+library For Online learning algorihtm implemented by C++
+
 
 NaiveBayes
 ----------

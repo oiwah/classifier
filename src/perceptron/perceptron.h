@@ -18,7 +18,7 @@ class Perceptron {
   void Train(const std::vector<datum>& data,
              const size_t iteration = 1);
   void Test(const feature_vector& fv, std::string* predict) const;
-  void GetFeatureWeight(const std::string& feature,
+  void GetFeatureWeight(size_t feature_id,
                         std::vector<std::pair<std::string, double> >* results) const;
  private:
   void CalcScores(const feature_vector& fv,

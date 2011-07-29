@@ -52,18 +52,24 @@ void CW::CalcScores(const feature_vector& fv,
 double CW::CalcV(const datum& datum,
                  const std::string& non_correct_predict) {
   double v = 0.0;
+  covariance_vector &correct_cov = cov_[datum.category];
   for (feature_vector::const_iterator it = datum.fv.begin();
        it != datum.fv.end();
        ++it) {
-    if (cov_[datum.category].find(it->first) == cov_[datum.category].end())
-      cov_[datum.category][it->first] = 1.0;
-    v += cov_[datum.category][it->first] * it->second * it->second;
+    if (correct_cov.size() <= it->first)
+      correct_cov.resize(it->first + 1, 1.0);
+    v += correct_cov[it->first] * it->second * it->second;
+  }
 
-    if (non_correct_predict == non_class) continue;
+  if (non_correct_predict == non_class) return v;
 
-    if (cov_[non_correct_predict].find(it->first) == cov_[non_correct_predict].end())
-      cov_[non_correct_predict][it->first] = 1.0;
-    v += cov_[non_correct_predict][it->first] * it->second * it->second;
+  covariance_vector &wrong_cov = cov_[non_correct_predict];
+  for (feature_vector::const_iterator it = datum.fv.begin();
+       it != datum.fv.end();
+       ++it) {
+    if (wrong_cov.size() <= it->first)
+      wrong_cov.resize(it->first + 1, 1.0);
+    v += wrong_cov[it->first] * it->second * it->second;
   }
 
   return v;
@@ -86,30 +92,44 @@ void CW::Update(const datum& datum,
   double alpha = CalcAlpha(m, v);
 
   if (alpha > 0.0) {
+    weight_vector &correct_weight = weight_[datum.category];
+    covariance_vector &correct_cov = cov_[datum.category];
     for (feature_vector::const_iterator it = datum.fv.begin();
          it != datum.fv.end();
          ++it) {
-      weight_[datum.category][it->first]
-          += alpha * cov_[datum.category][it->first] * it->second;
-      double tmp = 1.0 / cov_[datum.category][it->first]
-          + 2.0 * alpha * phi_ * it->second * it->second;
-      if (1.0 < tmp && tmp < 10.0E100)
-          cov_[datum.category][it->first] = 1.0 / tmp;
-      if (non_correct_predict == non_class) continue;
+      if (correct_weight.size() <= it->first)
+        correct_weight.resize(it->first + 1, 0.0);
+      correct_weight[it->first] += alpha * correct_cov[it->first] * it->second;
 
-      weight_[non_correct_predict][it->first]
-          -= alpha * cov_[non_correct_predict][it->first] * it->second;
-      tmp = 1.0 / cov_[non_correct_predict][it->first]
+      double tmp = 1.0 / correct_cov[it->first]
           + 2.0 * alpha * phi_ * it->second * it->second;
       if (1.0 < tmp && tmp < 10.0E100)
-          cov_[non_correct_predict][it->first] = 1.0 / tmp;
+          correct_cov[it->first] = 1.0 / tmp;
+    }
+
+    if (non_correct_predict == non_class)
+      return;
+
+    weight_vector &wrong_weight = weight_[non_correct_predict];
+    covariance_vector &wrong_cov = cov_[non_correct_predict];
+    for (feature_vector::const_iterator it = datum.fv.begin();
+         it != datum.fv.end();
+         ++it) {
+      if (wrong_weight.size() <= it->first)
+        wrong_weight.resize(it->first + 1, 0.0);
+      wrong_weight[it->first] -= alpha * wrong_cov[it->first] * it->second;
+
+      double tmp = 1.0 / wrong_cov[it->first]
+          + 2.0 * alpha * phi_ * it->second * it->second;
+      if (1.0 < tmp && tmp < 10.0E100)
+          wrong_cov[it->first] = 1.0 / tmp;
     }
   }
 }
 
-void CW::GetFeatureWeight(const std::string& feature,
+void CW::GetFeatureWeight(size_t feature_id,
                           std::vector<std::pair<std::string, double> >* results) const {
-  ReturnFeatureWeight(feature, weight_, results);
+  ReturnFeatureWeight(feature_id, weight_, results);
 }
 
 } //namespace

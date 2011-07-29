@@ -17,7 +17,7 @@ void PA::Train(const datum& datum) {
   score2class scores(0);
   CalcScores(datum.fv, &scores);
   
-  Update(datum.category, scores, datum.fv);
+  Update(datum, scores);
 }
 
 void PA::Train(const std::vector<datum>& data,
@@ -52,12 +52,11 @@ void PA::CalcScores(const feature_vector& fv,
        std::greater<std::pair<double, std::string> >());
 }
 
-void PA::Update(const std::string& correct,
-                const score2class& scores,
-                const feature_vector& fv) {
+void PA::Update(const datum& datum,
+                const score2class& scores) {
   std::string non_correct_predict;
-  double hinge_loss = CalcLossScore(scores, correct, &non_correct_predict, 1.0);
-  double fv_norm = CalcFvNorm(fv);
+  double hinge_loss = CalcLossScore(scores, datum.category, &non_correct_predict, 1.0);
+  double fv_norm = CalcFvNorm(datum.fv);
   double update = 0.0;
 
   switch(mode_) {
@@ -79,19 +78,32 @@ void PA::Update(const std::string& correct,
   update /= 2.0;
 
   if (update > 0.0) {
-    for (feature_vector::const_iterator it = fv.begin();
-         it != fv.end();
+    weight_vector &correct_weight = weight_[datum.category];
+    for (feature_vector::const_iterator it = datum.fv.begin();
+         it != datum.fv.end();
          ++it) {
-      weight_[correct][it->first] += update * it->second;
-      if (non_correct_predict != non_class)
-        weight_[non_correct_predict][it->first] -= update * it->second;
+      if (correct_weight.size() <= it->first)
+        correct_weight.resize(it->first + 1, 0.0);
+      correct_weight[it->first] += update * it->second;
+    }
+
+    if (non_correct_predict == non_class)
+      return;
+
+    weight_vector &wrong_weight = weight_[non_correct_predict];
+    for (feature_vector::const_iterator it = datum.fv.begin();
+         it != datum.fv.end();
+         ++it) {
+      if (wrong_weight.size() <= it->first)
+        wrong_weight.resize(it->first + 1, 0.0);
+       wrong_weight[it->first] -= update * it->second;
     }
   }
 }
 
-void PA::GetFeatureWeight(const std::string& feature,
+void PA::GetFeatureWeight(size_t feature_id,
                           std::vector<std::pair<std::string, double> >* results) const {
-  ReturnFeatureWeight(feature, weight_, results);
+  ReturnFeatureWeight(feature_id, weight_, results);
 }
 
 } //namespace

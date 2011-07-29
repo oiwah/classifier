@@ -51,18 +51,31 @@ void Perceptron::Update(const datum& datum,
   if (datum.category == predict)
     return;
 
+  std::vector<double> &correct_weight = weight_[datum.category];
   for (feature_vector::const_iterator it = datum.fv.begin();
        it != datum.fv.end();
        ++it) {
-    weight_[datum.category][it->first] += it->second;
-    if (predict == non_class) continue;
-    weight_[predict][it->first] -= it->second;
+    if (correct_weight.size() <= it->first)
+      correct_weight.resize(it->first + 1, 0.0);
+    correct_weight[it->first] += it->second / 2.0;
+  }
+
+  if (predict == non_class)
+    return;
+
+  std::vector<double> &wrong_weight = weight_[predict];
+  for (feature_vector::const_iterator it = datum.fv.begin();
+       it != datum.fv.end();
+       ++it) {
+    if (wrong_weight.size() <= it->first)
+      wrong_weight.resize(it->first + 1, 0.0);
+    wrong_weight[it->first] -= it->second / 2.0;
   }
 }
 
-void Perceptron::GetFeatureWeight(const std::string& feature,
+void Perceptron::GetFeatureWeight(size_t feature_id,
                                   std::vector<std::pair<std::string, double> >* results) const {
-  ReturnFeatureWeight(feature, weight_, results);
+  ReturnFeatureWeight(feature_id, weight_, results);
 }
 
 } //namespace

@@ -3,7 +3,7 @@
 
 #include <unordered_map>
 namespace classifier {
-typedef std::unordered_map<std::string, double> weight_vector;
+typedef std::vector<double> weight_vector;
 typedef std::unordered_map<std::string, weight_vector> weight_matrix;
 } //namespace
 

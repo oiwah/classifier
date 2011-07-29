@@ -4,7 +4,8 @@
 #include <cfloat>
 #include <unordered_map>
 namespace classifier {
-typedef std::unordered_map<std::string, double> feature_vector;
+typedef std::vector<std::pair<size_t, double> > feature_vector;
+typedef std::unordered_map<std::string, size_t> feature2id;
 struct datum {
   std::string category;
   feature_vector fv;

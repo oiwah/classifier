@@ -44,14 +44,17 @@ void DualAveraging::CalcWeight(const feature_vector& fv) {
   double scalar = 0.0;
   if (dataN_ != 0) scalar = - 1.0 / sqrt(dataN_) * gamma_;
 
-  for (feature_vector::const_iterator fv_it = fv.begin();
-       fv_it != fv.end();
-       ++fv_it) {
-    for (weight_matrix::const_iterator wm_it = subgradient_sum_.begin();
-         wm_it != subgradient_sum_.end();
-         ++wm_it) {
-      weight_[wm_it->first][fv_it->first]
-          = scalar * subgradient_sum_[wm_it->first][fv_it->first];
+  for (weight_matrix::const_iterator wm_it = subgradient_sum_.begin();
+       wm_it != subgradient_sum_.end();
+       ++wm_it) {
+    weight_vector &weight_vec = weight_[wm_it->first];
+    weight_vector &subgradient_vec = subgradient_sum_[wm_it->first];
+    for (feature_vector::const_iterator fv_it = fv.begin();
+         fv_it != fv.end();
+         ++fv_it) {
+      if (weight_vec.size() <= fv_it->first)
+        weight_vec.resize(fv_it->first + 1, 0.0);
+      weight_vec[fv_it->first] = scalar * subgradient_vec[fv_it->first];
     }
   }
 }
@@ -61,12 +64,12 @@ void DualAveraging::CalcWeightAll() {
   for (weight_matrix::const_iterator wm_it = subgradient_sum_.begin();
        wm_it != subgradient_sum_.end();
        ++wm_it) {
-    weight_vector wv = wm_it->second;
-    for (weight_vector::const_iterator wv_it = wv.begin();
-         wv_it != wv.end();
-         ++wv_it) {
-      weight_[wm_it->first][wv_it->first]
-          = scalar * subgradient_sum_[wm_it->first][wv_it->first];
+    weight_vector &weight_vec = weight_[wm_it->first];
+    weight_vector subgradient_vec = subgradient_sum_[wm_it->first];
+    if (weight_vec.size() < subgradient_vec.size())
+      weight_vec.resize(subgradient_vec.size(), 0.0);
+    for (size_t feature_id = 0; feature_id < subgradient_vec.size(); ++feature_id) {
+      weight_vec[feature_id] = scalar * subgradient_vec[feature_id];
     }
   }
 }
@@ -93,19 +96,32 @@ void DualAveraging::Update(const datum& datum,
   double hinge_loss = CalcLossScore(scores, datum.category, &non_correct_predict, 1.0);
 
   if (hinge_loss > 0.0) {
+    weight_vector &correct_subgradient_vec = subgradient_sum_[datum.category];
     for (feature_vector::const_iterator it = datum.fv.begin();
          it != datum.fv.end();
          ++it) {
-      subgradient_sum_[datum.category][it->first] -= it->second / 2.0;
-      if (non_correct_predict == non_class) continue;
-      subgradient_sum_[non_correct_predict][it->first] += it->second / 2.0;
+      if (correct_subgradient_vec.size() <= it->first)
+        correct_subgradient_vec.resize(it->first + 1, 0.0);
+      correct_subgradient_vec[it->first] -= it->second / 2.0;
+    }
+
+    if (non_correct_predict == non_class)
+      return;
+
+    weight_vector &wrong_subgradient_vec = subgradient_sum_[non_correct_predict];
+    for (feature_vector::const_iterator it = datum.fv.begin();
+         it != datum.fv.end();
+         ++it) {
+      if (wrong_subgradient_vec.size() <= it->first)
+        wrong_subgradient_vec.resize(it->first + 1, 0.0);
+      wrong_subgradient_vec[it->first] += it->second / 2.0;
     }
   }
 }
 
-void DualAveraging::GetFeatureWeight(const std::string& feature,
+void DualAveraging::GetFeatureWeight(size_t feature_id,
                                      std::vector<std::pair<std::string, double> >* results) const {
-  ReturnFeatureWeight(feature, weight_, results);
+  ReturnFeatureWeight(feature_id, weight_, results);
 }
 
 } //namespace

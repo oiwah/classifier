@@ -22,15 +22,15 @@ int main(int argc, char** argv) {
     return -1;
   }
 
+  classifier::feature2id f2i(0);
   std::vector<classifier::datum> train;
-  if (!ParseFile(argv[1], &train, true))
+  if (!ParseFile(argv[1], &train, &f2i, true))
     return -1;
 
   std::vector<classifier::datum> test;
-  if (!ParseFile(argv[2], &test, true))
+  if (!ParseFile(argv[2], &test, &f2i, true))
     return -1;
 
-  /**
   classifier::naivebayes::NaiveBayes nb;
   if (classifier::Run(nb, "NaiveBayes", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
@@ -67,7 +67,6 @@ int main(int argc, char** argv) {
   if (classifier::Run(pa_two, "PassiveAggressive-II", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
   }
-  */
 
   classifier::cw::CW cw(0.0001);
   if (classifier::Run(cw, "ConfidenceWeighted", train, test) == -1) {
@@ -78,13 +77,13 @@ int main(int argc, char** argv) {
   if (classifier::Run(sgh, "SubgradientHinge", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
   }
-  /**
+
   classifier::fobos::FOBOS fobos(1.0, 0.001);
   if (classifier::Run(fobos, "FOBOS", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
   }
 
-  classifier::fobos::CumulativeFOBOS cfobos(1.0, 0.0001);
+  classifier::fobos::CumulativeFOBOS cfobos(1.0, 0.001);
   if (classifier::Run(cfobos, "CumulativeFOBOS", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
   }
@@ -93,7 +92,6 @@ int main(int argc, char** argv) {
   if (classifier::Run(da, "DualAveraging", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
   }
-  */
 
   return 0;
 }

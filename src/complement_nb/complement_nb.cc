@@ -17,7 +17,7 @@ double ComplementNaiveBayes::CalculateProbability(const feature_vector& fv,
 
   // Calculate Word Sum Except One Category
   double word_sum_except_a_category = 0.0;
-  for (word_vector::const_iterator it = word_sum_in_each_category_.begin();
+  for (word_sum_vector::const_iterator it = word_sum_in_each_category_.begin();
        it != word_sum_in_each_category_.end();
        ++it) {
     if (it->first == category) continue;
@@ -28,25 +28,30 @@ double ComplementNaiveBayes::CalculateProbability(const feature_vector& fv,
   for (feature_vector::const_iterator fv_it = fv.begin();
        fv_it != fv.end();
        ++fv_it) {
-    std::string word = fv_it->first;
+    size_t word_id = fv_it->first;
     double word_count_except_a_category = 0.0;
     for (word_matrix::const_iterator cate_it = word_count_in_each_category_.begin();
          cate_it != word_count_in_each_category_.end();
          ++cate_it) {
       if (cate_it->first == category) continue;
 
-      const feature_vector &word_count_in_a_category
+      const word_vector &word_count_in_a_category
           = word_count_in_each_category_.at(cate_it->first);
-      if (word_count_in_a_category.find(word) == word_count_in_a_category.end())
-        continue;
+      if (word_id < word_count_in_a_category.size())
+        word_count_except_a_category += word_count_in_a_category.at(word_id);
       else
-        word_count_except_a_category += word_count_in_a_category.at(word);
+        continue;
     }
 
     // Word Probability
-    if (word_count_except_a_category == 0) {
+    if (word_count_except_a_category != 0) {
+      probability -= fv_it->second * log(
+          (word_count_except_a_category + smoothing_parameter)
+          / ((double)word_sum_except_a_category
+             + (fv.size() * smoothing_parameter)) );
+    } else {
       if (!smoothing_) {
-        probability = non_class_score;
+        probability = - non_class_score;
         break;
       }
 
@@ -55,11 +60,6 @@ double ComplementNaiveBayes::CalculateProbability(const feature_vector& fv,
           smoothing_parameter /
           ((double)word_sum_except_a_category
            + (fv.size() * smoothing_parameter)) );
-    } else {
-        probability -= fv_it->second * log(
-            (word_count_except_a_category + smoothing_parameter)
-            / ((double)word_sum_except_a_category
-               + (fv.size() * smoothing_parameter)) );
     }
   }
 

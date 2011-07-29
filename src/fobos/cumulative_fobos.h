@@ -18,7 +18,7 @@ class CumulativeFOBOS {
   void Train(const std::vector<datum>& data,
              const size_t iteration = 1);
   void Test(const feature_vector& fv, std::string* predict) const;
-  void GetFeatureWeight(const std::string& feature,
+  void GetFeatureWeight(size_t feature_id,
                         std::vector<std::pair<std::string, double> >* results) const;
 
  private:
@@ -26,9 +26,8 @@ class CumulativeFOBOS {
 
   void TruncateAll();
 
-  void Update(const std::string& correct,
-              const score2class& scores,
-              const feature_vector& fv);
+  void Update(const datum& datum,
+              const score2class& scores);
 
   void CalcScores(const feature_vector& fv,
                   score2class* scores) const;

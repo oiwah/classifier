@@ -8,7 +8,7 @@
 
 namespace classifier {
 namespace cw {
-typedef std::unordered_map<std::string, double> covariance_vector;
+typedef std::vector<double> covariance_vector;
 typedef std::unordered_map<std::string, covariance_vector> covariance_matrix;
 
 class CW {
@@ -21,7 +21,7 @@ class CW {
              const size_t iteration = 1);
   void Test(const feature_vector& fv,
             std::string* predict) const;
-  void GetFeatureWeight(const std::string& feature,
+  void GetFeatureWeight(size_t feature_id,
                         std::vector<std::pair<std::string, double> >* results) const;
 
  private:

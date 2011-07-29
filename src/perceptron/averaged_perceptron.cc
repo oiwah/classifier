@@ -70,38 +70,61 @@ void AveragedPerceptron::Update(const datum& datum,
   if (datum.category == predict)
     return;
 
+  std::vector<double> &correct_weight = weight_[datum.category];
+  std::vector<double> &correct_diffetial_weight = differential_weight_[datum.category];
   for (feature_vector::const_iterator it = datum.fv.begin();
        it != datum.fv.end();
        ++it) {
-    weight_[datum.category][it->first] += it->second;
-    differential_weight_[datum.category][it->first] += dataN_ * it->second;
-    if (predict == non_class) continue;
-    weight_[predict][it->first] -= it->second;
-    differential_weight_[predict][it->first] -= dataN_ * it->second;
+    if (correct_weight.size() <= it->first)
+      correct_weight.resize(it->first + 1, 0.0);
+    correct_weight[it->first] += it->second / 2.0;
+
+    if (correct_diffetial_weight.size() <= it->first)
+      correct_diffetial_weight.resize(it->first + 1, 0.0);
+    correct_diffetial_weight[it->first] += dataN_ * it->second / 2.0;
+  }
+
+  if (predict == non_class)
+    return;
+
+  std::vector<double> &wrong_weight = weight_[predict];
+  std::vector<double> &wrong_diffetial_weight = differential_weight_[predict];
+  for (feature_vector::const_iterator it = datum.fv.begin();
+       it != datum.fv.end();
+       ++it) {
+    if (wrong_weight.size() <= it->first)
+      wrong_weight.resize(it->first + 1, 0.0);
+    wrong_weight[it->first] -= it->second / 2.0;
+
+    if (wrong_diffetial_weight.size() <= it->first)
+      wrong_diffetial_weight.resize(it->first + 1, 0.0);
+    wrong_diffetial_weight[it->first] -= dataN_ * it->second / 2.0;
   }
 }
 
 void AveragedPerceptron::CalcAveragedWeight() {
-  weight_matrix wm;
+  weight_matrix ave_wm;
 
   for (weight_matrix::const_iterator wm_it = weight_.begin();
        wm_it != weight_.end();
        ++wm_it) {
+    weight_vector diff_wv = differential_weight_[wm_it->first];
     weight_vector wv = wm_it->second;
-    for (weight_vector::const_iterator wv_it = wv.begin();
-         wv_it != wv.end();
-         ++wv_it) {
-      wm[wm_it->first][wv_it->first] = wv_it->second
-          - differential_weight_[wm_it->first][wv_it->first] / dataN_;
+
+    weight_vector &ave_wv = ave_wm[wm_it->first];
+    ave_wv.resize(wv.size(), 0.0);
+
+    for (size_t feature_id = 0; feature_id < wv.size(); ++feature_id) {
+      ave_wv[feature_id] = wv[feature_id] - diff_wv[feature_id] / dataN_;
     }
   }
 
-  averaged_weight_.swap(wm);
+  averaged_weight_.swap(ave_wm);
 }
 
-void AveragedPerceptron::GetFeatureWeight(const std::string& feature,
+void AveragedPerceptron::GetFeatureWeight(size_t feature_id,
                                           std::vector<std::pair<std::string, double> >* results) const {
-  ReturnFeatureWeight(feature, averaged_weight_, results);
+  ReturnFeatureWeight(feature_id, averaged_weight_, results);
 }
 
 } //namespace

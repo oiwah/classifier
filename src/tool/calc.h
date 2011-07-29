@@ -12,8 +12,10 @@ inline double InnerProduct(const feature_vector& fv,
   double score = 0.0;
   for (feature_vector::const_iterator it = fv.begin();
        it != fv.end();
-       ++it)
-    score += (*wv)[it->first] * it->second;
+       ++it) {
+    if (wv->size() <= it->first) wv->resize((it->first)+1, 0.0);
+    score += wv->at(it->first) * it->second;
+  }
   return score;
 }
 
@@ -27,18 +29,18 @@ inline double CalcFvNorm(const feature_vector& fv) {
   return fv_norm;
 }
 
-inline void ReturnFeatureWeight(const std::string& feature,
+inline void ReturnFeatureWeight(size_t feature_id,
                                 const weight_matrix& wm,
                                 std::vector<std::pair<std::string, double> >* results) {
   for (weight_matrix::const_iterator it = wm.begin();
        it != wm.end();
        ++it) {
     std::string category = it->first;
-    if (it->second.find(feature) == it->second.end()) {
-      results->push_back(make_pair(category, 0.0));
-    } else {
-      double score = it->second.at(feature);
+    if (feature_id < it->second.size()) {
+      double score = it->second.at(feature_id);
       results->push_back(make_pair(category, score));
+    } else {
+      results->push_back(make_pair(category, 0.0));
     }
   }
 }

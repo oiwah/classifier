@@ -6,6 +6,7 @@
 namespace classifier {
 bool ParseFile(const char* file_path,
                std::vector<classifier::datum>* data,
+               feature2id* f2i,
                bool libsvm=false) {
   std::vector<classifier::datum>(0).swap(*data);
 
@@ -17,7 +18,7 @@ bool ParseFile(const char* file_path,
 
   size_t lineN = 0;
   for (std::string line; getline(ifs, line); ++lineN) {
-    classifier::datum datum;
+    datum datum;
     std::istringstream iss(line);
 
     std::string category = "Not defined";
@@ -27,26 +28,29 @@ bool ParseFile(const char* file_path,
     }
     datum.category = category;
 
-    std::vector<std::string> words(0);
-
     if (!libsvm) {
       std::string word;
-      while (iss >> word)
-        datum.fv[word] += 1.0;
+      while (iss >> word) {
+        size_t word_id = 0;
+        if (f2i->find(word) == f2i->end()) {
+          word_id = f2i->size();
+          f2i->insert(std::make_pair(word, word_id));
+        } else {
+          word_id = f2i->at(word);
+        }
+
+        datum.fv.push_back(std::make_pair(word_id, 1.0));
+      }
     } else {
       size_t id;
       while (iss >> id) {
         char comma;
         iss >> comma;
-        
+
         double value;
         iss >> value;
-        
-        std::ostringstream oss;
-        oss << id;
-        std::string word = oss.str();
-        
-        datum.fv[word] += value;
+
+        datum.fv.push_back(std::make_pair(id, value));
       }
     }
     data->push_back(datum);
@@ -57,11 +61,11 @@ bool ParseFile(const char* file_path,
 
 template <class T>
 void PrintFeatureWeights(T& classifier,
-                         const classifier::feature_vector fv) {
-  for (classifier::feature_vector::const_iterator it = fv.begin();
+                         const feature_vector fv) {
+  for (feature_vector::const_iterator it = fv.begin();
        it != fv.end();
        ++it) {
-    const std::string word = it->first;
+    size_t word = it->first;
     std::cout << word << std::endl;
 
     std::vector<std::pair<std::string, double> > results(0);

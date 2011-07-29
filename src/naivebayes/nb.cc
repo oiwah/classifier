@@ -6,7 +6,7 @@ namespace classifier {
 namespace naivebayes {
 NaiveBayes::NaiveBayes() : smoothing_(false), alpha_(0.0), document_sum_(0) {
   document_vector().swap(document_count_);
-  word_vector().swap(word_sum_in_each_category_);
+  word_sum_vector().swap(word_sum_in_each_category_);
   word_matrix().swap(word_count_in_each_category_);
 }
 
@@ -39,23 +39,23 @@ void NaiveBayes::Test(const feature_vector& fv, std::string* result) const {
     std::string category = it->first;
     double probability = CalculateProbability(fv, category);
 
-    if (score < probability) {
+    if (*result == non_class || score < probability) {
       *result = category;
       score = probability;
     }
   }
 }
 
-void NaiveBayes::GetFeatureWeight(const std::string& feature,
+void NaiveBayes::GetFeatureWeight(size_t feature_id,
                                   std::vector<std::pair<std::string, double> >* results) const {
   for (word_matrix::const_iterator it = word_count_in_each_category_.begin();
        it != word_count_in_each_category_.end();
        ++it) {
     std::string category = it->first;
-    if (it->second.find(feature) == it->second.end()) {
+    if (it->second.size() <= feature_id) {
       results->push_back(make_pair(category, 0.0));
     } else {
-      double score = it->second.at(feature) / word_sum_in_each_category_.at(category);
+      double score = it->second.at(feature_id) / word_sum_in_each_category_.at(category);
       results->push_back(make_pair(category, score));
     }
   }
@@ -64,8 +64,8 @@ void NaiveBayes::GetFeatureWeight(const std::string& feature,
 void NaiveBayes::CountCategory(const std::string& category) {
   if (document_count_.find(category) == document_count_.end()) {
     document_count_[category] = 1;
-    word_sum_in_each_category_[category] = 0;
-    word_count_in_each_category_.insert(make_pair(category, feature_vector()));
+    word_sum_in_each_category_[category] = 0.0;
+    word_count_in_each_category_.insert(make_pair(category, word_vector()));
   } else {
     ++document_count_[category];
   }
@@ -73,14 +73,19 @@ void NaiveBayes::CountCategory(const std::string& category) {
 
 void NaiveBayes::CountWord(const std::string& category,
                            const feature_vector& fv) {
+  word_vector &word_count = word_count_in_each_category_[category];
+  double &word_sum = word_sum_in_each_category_[category];
   for (feature_vector::const_iterator it = fv.begin();
        it != fv.end();
        ++it) {
-    std::string word = it->first;
+    size_t word_id = it->first;
     double count = it->second;
 
-    word_count_in_each_category_[category][word] += count;
-    word_sum_in_each_category_[category] += count;
+    if (word_count.size() <= word_id)
+      word_count.resize(word_id+1, 0.0);
+
+    word_count[word_id] += count;
+    word_sum += count;
   }
 }
 
@@ -100,10 +105,15 @@ double NaiveBayes::CalculateProbability(const feature_vector& fv,
   for (feature_vector::const_iterator it = fv.begin();
        it != fv.end();
        ++it) {
-    std::string word = it->first;
-    const feature_vector &word_count_in_a_category
+    size_t word_id = it->first;
+    const word_vector &word_count_in_a_category
         = word_count_in_each_category_.at(category);
-    if (word_count_in_a_category.find(word) == word_count_in_a_category.end()) {
+    if (word_id < word_count_in_a_category.size()) {
+      probability += log(
+          (word_count_in_a_category.at(word_id) + smoothing_parameter)
+          / (word_sum_in_each_category_.at(category) + (fv.size() * smoothing_parameter)) )
+          * it->second;
+    } else {
       if (!smoothing_) {
         probability = non_class_score;
         break;
@@ -115,11 +125,6 @@ double NaiveBayes::CalculateProbability(const feature_vector& fv,
           (word_sum_in_each_category_.at(category)
            + (fv.size() * smoothing_parameter)) )
            * it->second;
-    } else {
-      probability += log(
-          (word_count_in_a_category.at(word) + smoothing_parameter)
-          / (word_sum_in_each_category_.at(category) + (fv.size() * smoothing_parameter)) )
-          * it->second;
     }
   }
 
