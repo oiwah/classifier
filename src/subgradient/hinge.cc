@@ -42,8 +42,7 @@ void SubgradientHinge::CalcScores(const feature_vector& fv,
   for (weight_matrix::const_iterator it = weight_.begin();
        it != weight_.end();
        ++it) {
-    weight_vector wv = it->second;
-    double score = InnerProduct(fv, &wv);
+    double score = InnerProduct(fv, it->second);
     scores->push_back(make_pair(score, it->first));
   }
 

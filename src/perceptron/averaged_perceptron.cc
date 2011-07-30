@@ -48,16 +48,14 @@ void AveragedPerceptron::Predict(const feature_vector& fv,
     for (weight_matrix::const_iterator it = weight_.begin();
          it != weight_.end();
          ++it) {
-      weight_vector wv = it->second;
-      double score = InnerProduct(fv, &wv);
+      double score = InnerProduct(fv, it->second);
       scores.push_back(make_pair(score, it->first));
     }
   } else if (mode == 1) {
     for (weight_matrix::const_iterator it = averaged_weight_.begin();
          it != averaged_weight_.end();
          ++it) {
-      weight_vector wv = it->second;
-      double score = InnerProduct(fv, &wv);
+      double score = InnerProduct(fv, it->second);
       scores.push_back(make_pair(score, it->first));
     }
   }

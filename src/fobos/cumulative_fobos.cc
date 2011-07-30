@@ -108,7 +108,7 @@ void CumulativeFOBOS::Update(const datum& datum,
   if (hinge_loss > 0.0) {
     double step_distance = eta_ / (std::sqrt(dataN_) * 2.0);
 
-    weight_vector correct_weight = weight_[datum.category];
+    weight_vector &correct_weight = weight_[datum.category];
     for (feature_vector::const_iterator it = datum.fv.begin();
          it != datum.fv.end();
          ++it) {
@@ -120,7 +120,7 @@ void CumulativeFOBOS::Update(const datum& datum,
     if (non_correct_predict == non_class)
       return;
 
-    weight_vector wrong_weight = weight_[non_correct_predict];
+    weight_vector &wrong_weight = weight_[non_correct_predict];
     for (feature_vector::const_iterator it = datum.fv.begin();
          it != datum.fv.end();
          ++it) {
@@ -138,8 +138,7 @@ void CumulativeFOBOS::CalcScores(const feature_vector& fv,
   for (weight_matrix::const_iterator it = weight_.begin();
        it != weight_.end();
        ++it) {
-    weight_vector wv = it->second;
-    double score = InnerProduct(fv, &wv);
+    double score = InnerProduct(fv, it->second);
     scores->push_back(make_pair(score, it->first));
   }
 

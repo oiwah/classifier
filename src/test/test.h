@@ -29,7 +29,7 @@ bool ParseFile(const char* file_path,
     datum.category = category;
 
     if (!libsvm) {
-      std::string word;
+      std::string word = "";
       while (iss >> word) {
         size_t word_id = 0;
         if (f2i->find(word) == f2i->end()) {
@@ -42,14 +42,10 @@ bool ParseFile(const char* file_path,
         datum.fv.push_back(std::make_pair(word_id, 1.0));
       }
     } else {
-      size_t id;
-      while (iss >> id) {
-        char comma;
-        iss >> comma;
-
-        double value;
-        iss >> value;
-
+      size_t id = 0;
+      char comma = 0;
+      double value = 0.0;
+      while (iss >> id >> comma >> value) {
         datum.fv.push_back(std::make_pair(id, value));
       }
     }

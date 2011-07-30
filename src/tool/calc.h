@@ -8,13 +8,13 @@ namespace classifier {
 typedef std::vector<std::pair<double, std::string> > score2class;
 
 inline double InnerProduct(const feature_vector& fv,
-                           weight_vector* wv) {
+                           const weight_vector& wv) {
   double score = 0.0;
   for (feature_vector::const_iterator it = fv.begin();
        it != fv.end();
        ++it) {
-    if (wv->size() <= it->first) wv->resize((it->first)+1, 0.0);
-    score += wv->at(it->first) * it->second;
+    if (wv.size() <= it->first) continue;
+    score += wv[it->first] * it->second;
   }
   return score;
 }

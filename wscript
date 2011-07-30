@@ -12,6 +12,7 @@ def options(opt):
 def configure(conf):
     conf.check_tool('compiler_cxx')
     conf.env.append_unique('CXXFLAGS', ['-std=c++0x', '-O2', '-W', '-Wall'])
+    conf.env.append_unique('LINKFLAGS', ['-std=c++0x', '-O2', '-W', '-Wall'])
     conf.env.HPREFIX=conf.env.PREFIX + '/include/classifier'
 
 def build(bld):

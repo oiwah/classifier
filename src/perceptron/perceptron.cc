@@ -1,5 +1,4 @@
 #include <perceptron/perceptron.h>
-
 #include <algorithm>
 
 namespace classifier {
@@ -39,8 +38,7 @@ void Perceptron::CalcScores(const feature_vector& fv,
   for (weight_matrix::const_iterator it = weight_.begin();
        it != weight_.end();
        ++it) {
-    weight_vector wv = it->second;
-    double score = InnerProduct(fv, &wv);
+    double score = InnerProduct(fv, it->second);
     scores->push_back(make_pair(score, it->first));
   }
 
@@ -54,11 +52,14 @@ void Perceptron::Update(const datum& datum,
     return;
 
   std::vector<double> &correct_weight = weight_[datum.category];
+  size_t correct_weight_size = correct_weight.size();
   for (feature_vector::const_iterator it = datum.fv.begin();
        it != datum.fv.end();
        ++it) {
-    if (correct_weight.size() <= it->first)
-      correct_weight.resize(it->first + 1, 0.0);
+    if (correct_weight_size <= it->first) {
+      correct_weight.resize(it->first + 1);
+      correct_weight_size = it->first + 1;
+    }
     correct_weight[it->first] += it->second / 2.0;
   }
 
@@ -66,11 +67,14 @@ void Perceptron::Update(const datum& datum,
     return;
 
   std::vector<double> &wrong_weight = weight_[predict];
+  size_t wrong_weight_size = wrong_weight.size();
   for (feature_vector::const_iterator it = datum.fv.begin();
        it != datum.fv.end();
        ++it) {
-    if (wrong_weight.size() <= it->first)
-      wrong_weight.resize(it->first + 1, 0.0);
+    if (wrong_weight_size <= it->first) {
+      wrong_weight.resize(it->first + 1);
+      wrong_weight_size = it->first + 1;
+    }
     wrong_weight[it->first] -= it->second / 2.0;
   }
 }
