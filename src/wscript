@@ -3,7 +3,7 @@
 def build(bld):
     bld.install_files('${PREFIX}/include/classifier',
                       bld.path.ant_glob('**/*.h'),
-                      cwd=bld.path.find_dir('src/classifier'),
+                      cwd=bld.path.find_dir('src'),
                       relative_trick=True)
 
     bld.shlib(source = ['naivebayes/nb.cc',

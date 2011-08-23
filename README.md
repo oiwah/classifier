@@ -4,7 +4,7 @@ Classification Library -- Several Online Learning Algorithms
 Enviromental Requirement
 ========================
 
-* gcc version *> 4.6.0*
+* gcc version *> 4.4.0* (Using std::unordered_map)
 
 About
 =====
