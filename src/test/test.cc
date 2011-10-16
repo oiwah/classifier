@@ -32,11 +32,13 @@ int main(int argc, char** argv) {
     return -1;
 
   classifier::naivebayes::NaiveBayes nb;
+  nb.set_alpha(1.5);
   if (classifier::Run(nb, "NaiveBayes", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
   }
 
   classifier::naivebayes::ComplementNaiveBayes c_nb;
+  c_nb.set_alpha(1.5);
   if (classifier::Run(c_nb, "ComplementNaiveBayes", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
   }

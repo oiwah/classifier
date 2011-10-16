@@ -13,8 +13,8 @@ DualAveraging::DualAveraging(double gamma) : dataN_(0), gamma_(gamma) {
 void DualAveraging::Train(const datum& datum,
                           bool primal) {
   CalcWeight(datum.fv);
-
   ++dataN_;
+
   score2class scores(0);
   CalcScores(datum.fv, &scores);
   Update(datum, scores);
@@ -43,8 +43,8 @@ void DualAveraging::Test(const feature_vector& fv,
 }
 
 void DualAveraging::CalcWeight(const feature_vector& fv) {
-  double scalar = 0.0;
-  if (dataN_ != 0) scalar = - 1.0 / sqrt(dataN_) * gamma_;
+  if (dataN_ == 0) return;
+  double scalar = - 1.0 / sqrt(dataN_) * gamma_;
 
   for (weight_matrix::const_iterator wm_it = subgradient_sum_.begin();
        wm_it != subgradient_sum_.end();
@@ -54,8 +54,12 @@ void DualAveraging::CalcWeight(const feature_vector& fv) {
     for (feature_vector::const_iterator fv_it = fv.begin();
          fv_it != fv.end();
          ++fv_it) {
+      if (subgradient_vec.size() <= fv_it->first)
+        subgradient_vec.resize(fv_it->first, 0.0);
+
       if (weight_vec.size() <= fv_it->first)
         weight_vec.resize(fv_it->first + 1, 0.0);
+
       weight_vec[fv_it->first] = scalar * subgradient_vec[fv_it->first];
     }
   }
