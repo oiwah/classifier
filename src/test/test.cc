@@ -91,7 +91,6 @@ int main(int argc, char** argv) {
   if (classifier::Run(cfobos, "CumulativeFOBOS", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
   }
-  */
 
   classifier::dual_averaging::DualAveraging da(0.001);
   if (classifier::Run(da, "DualAveraging", train, test) == -1) {

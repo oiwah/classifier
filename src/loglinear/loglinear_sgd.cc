@@ -58,7 +58,6 @@ void LogLinearSGD::CalcScores(const feature_vector& fv,
     it->first /= sum_score;
   }
 
-  scores->push_back(make_pair(non_class_score, non_class));
   sort(scores->begin(), scores->end(),
        std::greater<std::pair<double, std::string> >());
 }
@@ -70,8 +69,6 @@ void LogLinearSGD::Update(const datum& datum,
        fv_it != datum.fv.end();
        ++fv_it) {
     for (size_t i = 0; i < scores.size(); ++i) {
-      if (scores[i].second == non_class) continue;
-
       weight_vector &weight_vec = weight_[scores[i].second];
       if (weight_vec.size() <= fv_it->first)
         weight_vec.resize(fv_it->first + 1, 0.0);
