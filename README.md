@@ -29,6 +29,7 @@ Online Algorithms
 Optimization
 ------------
 
+* LogLinearModel (SGD)
 * Subgradient Method (Hinge-Loss)
 * Forward Backward Splitting (Hinge-Loss + L1-regularization)
 * FOBOS with Cumulative Penalty (Hinge-Loss + L1-regularization)
@@ -36,8 +37,6 @@ Optimization
 
 TODO
 ----
-
-* LogLinear (SGD)
 
 Author
 ------
@@ -48,4 +47,4 @@ The University of Tokyo,
 
 Graduate School of Mathematical Informatics,
 
-[HomePage](http://www.r.dl.itc.u-tokyo.ac.jp/~oiwa/en/)
+[HomePage](http://www.r.dl.itc.u-tokyo.ac.jp/~oiwa/)

@@ -16,6 +16,7 @@ def build(bld):
                         'fobos/fobos.cc',
                         'fobos/cumulative_fobos.cc',
                         'dual_averaging/da.cc',
+                        'loglinear/loglinear_sgd.cc',
                         ],
               target = 'classifiers',
               includes=bld.SRCPATH)

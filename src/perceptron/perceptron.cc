@@ -51,7 +51,7 @@ void Perceptron::Update(const datum& datum,
   if (datum.category == predict)
     return;
 
-  std::vector<double> &correct_weight = weight_[datum.category];
+  weight_vector &correct_weight = weight_[datum.category];
   size_t correct_weight_size = correct_weight.size();
   for (feature_vector::const_iterator it = datum.fv.begin();
        it != datum.fv.end();
@@ -66,7 +66,7 @@ void Perceptron::Update(const datum& datum,
   if (predict == non_class)
     return;
 
-  std::vector<double> &wrong_weight = weight_[predict];
+  weight_vector &wrong_weight = weight_[predict];
   size_t wrong_weight_size = wrong_weight.size();
   for (feature_vector::const_iterator it = datum.fv.begin();
        it != datum.fv.end();

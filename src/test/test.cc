@@ -11,6 +11,8 @@
 #include <fobos/cumulative_fobos.h>
 #include <dual_averaging/da.h>
 
+#include <loglinear/loglinear_sgd.h>
+
 #include <test/test.h>
 
 namespace {
@@ -89,9 +91,15 @@ int main(int argc, char** argv) {
   if (classifier::Run(cfobos, "CumulativeFOBOS", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
   }
+  */
 
   classifier::dual_averaging::DualAveraging da(0.001);
   if (classifier::Run(da, "DualAveraging", train, test) == -1) {
+    std::cerr << "error occurring!" << std::endl;
+  }
+
+  classifier::loglinear::LogLinearSGD llsgd;
+  if (classifier::Run(llsgd, "LogLinearSGD", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
   }
 
