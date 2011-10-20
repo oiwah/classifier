@@ -13,6 +13,7 @@ def build(bld):
                         'passive_aggressive/pa.cc',
                         'confidence_weighted/cw.cc',
                         'subgradient/hinge.cc',
+                        'subgradient/averaged_hinge.cc',
                         'fobos/fobos.cc',
                         'fobos/cumulative_fobos.cc',
                         'dual_averaging/da.cc',

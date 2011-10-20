@@ -44,7 +44,7 @@ void DualAveraging::Test(const feature_vector& fv,
 
 void DualAveraging::CalcWeight(const feature_vector& fv) {
   if (dataN_ == 0) return;
-  double scalar = - 1.0 / sqrt(dataN_) * gamma_;
+  double scalar = - sqrt(dataN_) / gamma_;
 
   for (weight_matrix::const_iterator wm_it = subgradient_sum_.begin();
        wm_it != subgradient_sum_.end();

@@ -7,6 +7,7 @@
 #include <confidence_weighted/cw.h>
 
 #include <subgradient/hinge.h>
+#include <subgradient/averaged_hinge.h>
 #include <fobos/fobos.h>
 #include <fobos/cumulative_fobos.h>
 #include <dual_averaging/da.h>
@@ -79,6 +80,11 @@ int main(int argc, char** argv) {
 
   classifier::subgradient::SubgradientHinge sgh;
   if (classifier::Run(sgh, "SubgradientHinge", train, test) == -1) {
+    std::cerr << "error occurring!" << std::endl;
+  }
+
+  classifier::subgradient::ASGDHinge asgdh;
+  if (classifier::Run(asgdh, "ASGDHinge", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
   }
 

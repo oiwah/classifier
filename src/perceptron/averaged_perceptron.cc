@@ -70,8 +70,8 @@ void AveragedPerceptron::Update(const datum& datum,
   if (datum.category == predict)
     return;
 
-  std::vector<double> &correct_weight = weight_[datum.category];
-  std::vector<double> &correct_diffetial_weight = differential_weight_[datum.category];
+  weight_vector &correct_weight = weight_[datum.category];
+  weight_vector &correct_diffetial_weight = differential_weight_[datum.category];
   for (feature_vector::const_iterator it = datum.fv.begin();
        it != datum.fv.end();
        ++it) {
@@ -87,8 +87,8 @@ void AveragedPerceptron::Update(const datum& datum,
   if (predict == non_class)
     return;
 
-  std::vector<double> &wrong_weight = weight_[predict];
-  std::vector<double> &wrong_diffetial_weight = differential_weight_[predict];
+  weight_vector &wrong_weight = weight_[predict];
+  weight_vector &wrong_diffetial_weight = differential_weight_[predict];
   for (feature_vector::const_iterator it = datum.fv.begin();
        it != datum.fv.end();
        ++it) {
