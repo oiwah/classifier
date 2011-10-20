@@ -16,7 +16,6 @@ void ASGDHinge::Train(const datum& datum,
   ++dataN_;
   score2class scores(0);
   CalcScores(datum.fv, &scores, 0);
-
   Update(datum, scores);
 
   if (calc_averaged)
@@ -104,7 +103,7 @@ void ASGDHinge::Update(const datum& datum,
 
       if (wrong_diffetial_weight.size() <= it->first)
         wrong_diffetial_weight.resize(it->first + 1, 0.0);
-      wrong_diffetial_weight[it->first] -= dataN_ * step_distance * it->second / 2.0;
+      wrong_diffetial_weight[it->first] -= dataN_ * step_distance * it->second;
     }
   }
 }
