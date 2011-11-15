@@ -115,7 +115,7 @@ void ASGDHinge::CalcAveragedWeight() {
        wm_it != weight_.end();
        ++wm_it) {
     weight_vector &diff_wv = differential_weight_[wm_it->first];
-    weight_vector &wv = wm_it->second;
+    weight_vector &wv = weight_[wm_it->first];
 
     weight_vector &ave_wv = ave_wm[wm_it->first];
     ave_wv.resize(wv.size(), 0.0);
