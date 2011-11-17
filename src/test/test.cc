@@ -5,6 +5,7 @@
 #include <perceptron/averaged_perceptron.h>
 #include <passive_aggressive/pa.h>
 #include <confidence_weighted/cw.h>
+#include <arow/arow.h>
 
 #include <subgradient/hinge.h>
 #include <subgradient/averaged_hinge.h>
@@ -76,6 +77,11 @@ int main(int argc, char** argv) {
   classifier::cw::CW cw(0.0001);
   if (classifier::Run(cw, "ConfidenceWeighted", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
+  }
+
+  classifier::arow::AROW arow(0.01);
+  if (classifier::Run(arow, "AROW", train, test) == -1) {
+    std::cerr << "AROW failed." << std::endl;
   }
 
   classifier::subgradient::SubgradientHinge sgh;
