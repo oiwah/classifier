@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
   std::vector<classifier::datum> test;
   if (!ParseFile(argv[2], &test, &f2i, true))
     return -1;
-
+  /**
   classifier::naivebayes::NaiveBayes nb;
   nb.set_alpha(1.5);
   if (classifier::Run(nb, "NaiveBayes", train, test) == -1) {
@@ -73,12 +73,26 @@ int main(int argc, char** argv) {
   if (classifier::Run(pa_two, "PassiveAggressive-II", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
   }
-
-  classifier::cw::CW cw(0.0001);
+  */
+  classifier::cw::CW cw(0.001);
   if (classifier::Run(cw, "ConfidenceWeighted", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
   }
 
+  classifier::cw::CW scw1(0.001);
+  scw1.ChangeMode(1);
+  scw1.SetC(1.0);
+  if (classifier::Run(scw1, "SoftConfidenceWeighted-I", train, test) == -1) {
+    std::cerr << "error occurring!" << std::endl;
+  }  
+
+  classifier::cw::CW scw2(0.001);
+  scw2.ChangeMode(2);
+  scw2.SetC(1.0);
+  if (classifier::Run(scw2, "SoftConfidenceWeighted-II", train, test) == -1) {
+    std::cerr << "error occurring!" << std::endl;
+  }  
+  /*
   classifier::arow::AROW arow(0.01);
   if (classifier::Run(arow, "AROW", train, test) == -1) {
     std::cerr << "AROW failed." << std::endl;
@@ -113,6 +127,6 @@ int main(int argc, char** argv) {
   if (classifier::Run(llsgd, "LogLinearSGD", train, test) == -1) {
     std::cerr << "error occurring!" << std::endl;
   }
-
+  **/
   return 0;
 }

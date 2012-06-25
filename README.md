@@ -24,7 +24,8 @@ Online Algorithms
 * Perceptron
 * Averaged Perceptron
 * Passive-Aggressive (PA, PA-I, PA-II)
-* Confidence-Weighted (Single Constraint, Diagonal)
+* Confidence-Weighted (Single Constraint)
+* Soft Confidence-Weighted (Single Constraint)
 * Adaptive Regularized of Weighted Vectors (Single Constraint, Diagonal)
 
 Optimization
