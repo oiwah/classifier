@@ -6,7 +6,7 @@
 #include <parser/libsvm.h>
 
 namespace classifier {
-bool ParseFile(const char* file_path,
+bool ParseFile(const std::string& file_path,
                std::vector<classifier::datum>* data,
                feature2id* f2i,
                bool libsvm=false) {
