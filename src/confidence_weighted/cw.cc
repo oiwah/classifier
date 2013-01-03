@@ -97,10 +97,12 @@ double CW::CalcAlpha(double m, double v) const {
 
 double CW::CalcAlpha0(double m, double v) const {
   double psi = 1.0 + phi_ * phi_ / 2.0;
+  double phi2 = phi_ * phi_;
+  double phi4 = phi2 * phi2;
   double zeta = 1.0 + phi_ * phi_;
 
   double alpha =
-    (-m * psi + std::sqrt(m*m*phi_*phi_/4.0 + v*phi_*phi_*zeta)) / (v * zeta);
+    (-m * psi + std::sqrt(m*m*phi4/4.0 + v*phi2*zeta)) / (v * zeta);
   return std::max(0.0, alpha);
 }
 
@@ -109,11 +111,13 @@ double CW::CalcAlpha1(double m, double v) const {
 }
 
 double CW::CalcAlpha2(double m, double v) const {
+  double phi2 = phi_ * phi_;
+
   double n = v + 1.0 / (2.0 * C_);
-  double gamma = phi_ * std::sqrt(phi_*phi_*m*m*v*v + 4*n*v*(n+v*phi_*phi_));
-  double alpha = - (2.0 * m * n + phi_ * phi_ * m * v) + gamma;
+  double gamma = phi_ * std::sqrt(phi2*m*m*v*v + 4*n*v*(n+v*phi2));
+  double alpha = - (2.0 * m * n + phi2 * m * v) + gamma;
   if (alpha <= 0.0) return 0.0;
-  alpha /= 2.0 * (n*n + n*v*phi_*phi_);
+  alpha /= 2.0 * (n*n + n*v*phi2);
   return alpha;
 }
 
