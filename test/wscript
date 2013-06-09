@@ -1,0 +1,7 @@
+#!/usr/bin/python
+
+def build(bld):
+    bld(features = 'cxx cprogram',
+        source = ['test.cc'],
+        target = 'classifier_test',
+        use = ['multiclass_classifiers'])

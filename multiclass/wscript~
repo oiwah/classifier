@@ -1,0 +1,24 @@
+#!/usr/bin/python
+
+def build(bld):
+    bld.install_files('${PREFIX}/include/classifier',
+                      bld.path.ant_glob('**/*.h'),
+                      cwd=bld.path.find_dir('src'),
+                      relative_trick=True)
+
+    bld.objects(source = ['naivebayes/nb.cc',
+                          'complement_nb/complement_nb.cc',
+                          'perceptron/perceptron.cc',
+                          'perceptron/averaged_perceptron.cc',
+                          'passive_aggressive/pa.cc',
+                          'confidence_weighted/cw.cc',
+                          'arow/arow.cc',
+                          'subgradient/hinge.cc',
+                          'subgradient/averaged_hinge.cc',
+                          'fobos/fobos.cc',
+                          'fobos/cumulative_fobos.cc',
+                          'dual_averaging/da.cc',
+                          'loglinear/loglinear_sgd.cc',
+                          ],
+                target = 'multiclass_classifiers',
+                name = 'multiclass_classifiers')
